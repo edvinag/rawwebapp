@@ -12,13 +12,13 @@ jobs:
     steps:
       # Step 1: Check out the code from the repo
       - name: Check out code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       # Step 2: Set up Node.js (specify version if necessary)
       - name: Set up Node.js
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v3
         with:
-          node-version: '16' # Use any compatible version
+          node-version: '20' # Use any compatible version
 
       # Step 3: Install dependencies and build the project
       - name: Install dependencies and build
