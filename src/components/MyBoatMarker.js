@@ -62,7 +62,14 @@ const MyBoatMarker = ({ apiKey }) => {
           <strong>Longitude:</strong> {boatData.data.gps.location.longitude}
         </Popup>
       </Marker>
-      <Polyline positions={boatPath} color="green" /> {/* Draw the boat path */}
+      <Polyline 
+  positions={boatPath} 
+  pathOptions={{
+    color: '#305cde', 
+    dashArray: '5, 10', // Adjust the pattern for dotted effect
+    weight: 2 // Adjust thickness if needed
+  }} 
+/>
     </>
   ) : null;
 };

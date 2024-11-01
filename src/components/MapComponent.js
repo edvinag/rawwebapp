@@ -1,8 +1,10 @@
-import React, { useEffect, useState } from 'react';
-import { MapContainer, TileLayer, Marker, Popup, LayersControl, LayerGroup } from 'react-leaflet';
+// MapComponent.js
+import React from 'react';
+import { MapContainer, LayersControl } from 'react-leaflet';
 import TileLayers from './TileLayers';
 import AISShipsLayer from './AISShipsLayer';
 import MyBoatMarker from './MyBoatMarker';
+import TargetMarker from './TargetMarker'; // Import the new TargetMarker component
 import 'leaflet/dist/leaflet.css';
 
 const position = [57.573517, 11.9269]; // Initial center coordinates
@@ -13,8 +15,9 @@ const MapComponent = ({ apiKey }) => {
       <LayersControl position="topright">
         <TileLayers />
         <AISShipsLayer apiKey={apiKey} />
-        <MyBoatMarker apiKey={apiKey} />
+        <TargetMarker apiKey={apiKey} />
       </LayersControl>
+      <MyBoatMarker apiKey={apiKey} />
     </MapContainer>
   );
 };
