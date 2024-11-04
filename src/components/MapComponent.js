@@ -6,19 +6,19 @@ import AISShipsLayer from './AISShipsLayer';
 import MyBoatMarker from './MyBoatMarker';
 import TargetMarker from './TargetMarker';
 import RoutePolyline from './RoutePolyline';
-import TargetLine from './TargetLine'; // Import BoatRouteLine component
-import BoatPath from './BoatPath'; // Import BoatPath component
+import TargetLine from './TargetLine';
+import BoatPath from './BoatPath';
 import 'leaflet/dist/leaflet.css';
 
-const position = [57.573517, 11.9269]; // Initial center coordinates
+const position = [57.573517, 11.9269];
 
-const MapComponent = () => {
+const MapComponent = ({ showTargetMarker }) => {
   return (
-    <MapContainer center={position} zoom={16} style={{ height: "100vh", width: "100%" }}>
+    <MapContainer center={position} zoom={16} style={{ height: "100vh", width: "100%" }} doubleClickZoom={false}>
       <LayersControl position="topright">
         <TileLayers />
         <AISShipsLayer />
-        <TargetMarker />
+        {showTargetMarker && <TargetMarker />} {/* Conditionally render TargetMarker */}
         <RoutePolyline />
         <BoatPath />
         <TargetLine />

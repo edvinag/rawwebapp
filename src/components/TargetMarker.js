@@ -19,7 +19,7 @@ const TargetMarker = () => {
 
   const markerRef = useRef(null);
 
-  useMapEvent('click', (event) => {
+  useMapEvent('dblclick', (event) => {
     setMarkerPosition(event.latlng);
   });
 
