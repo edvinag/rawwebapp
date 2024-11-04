@@ -1,14 +1,19 @@
 import React, { useEffect, useState } from 'react';
 import { Marker, Popup, LayerGroup, LayersControl } from 'react-leaflet';
 import L from 'leaflet';
+import { useApi } from '../contexts/ApiContext'; // Import the API context
 
 const { Overlay } = LayersControl;
 
-const AISShipsLayer = ({ apiKey }) => {
+const AISShipsLayer = () => {
+  const { apiKey } = useApi(); // Access apiKey from ApiContext
   const [aisData, setAisData] = useState([]);
 
   useEffect(() => {
-    if (!apiKey) return console.warn('No API key provided');
+    if (!apiKey) {
+      console.warn('No API key provided');
+      return;
+    }
 
     fetch('https://ais2.skippo.io/search/bbox?latTop=57.623517&lonLeft=11.8769&latBottom=57.523517&lonRight=11.9769', {
       headers: { 'Authorization': `Basic ${apiKey}` }

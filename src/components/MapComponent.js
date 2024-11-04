@@ -10,16 +10,16 @@ import 'leaflet/dist/leaflet.css';
 
 const position = [57.573517, 11.9269]; // Initial center coordinates
 
-const MapComponent = ({ apiKey }) => {
+const MapComponent = () => {
   return (
     <MapContainer center={position} zoom={16} style={{ height: "100vh", width: "100%" }}>
       <LayersControl position="topright">
         <TileLayers />
-        <AISShipsLayer apiKey={apiKey} />
-        <TargetMarker apiKey={apiKey} />
+        <AISShipsLayer />
+        <TargetMarker />
         <RoutePolyline />
       </LayersControl>
-      <MyBoatMarker apiKey={apiKey} />
+      <MyBoatMarker />
     </MapContainer>
   );
 };

@@ -1,11 +1,11 @@
-// TargetMarker.js
 import React, { useState } from 'react';
 import { Marker, Popup, useMapEvent, LayersControl } from 'react-leaflet';
 import L from 'leaflet';
 import targetIcon from '../assist/target.png'; // Adjust this path as necessary
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
-import { Room, AddLocation } from '@mui/icons-material'; // Import icons from MUI
+import { Room, AddLocation } from '@mui/icons-material';
+import { useApi } from '../contexts/ApiContext'; // Import the API context
 
 const { Overlay } = LayersControl;
 
@@ -15,8 +15,8 @@ const theTargetIcon = L.icon({
   iconSize: [25, 25],
 });
 
-// Component to handle clicks and add a target marker at the clicked location
-const TargetMarker = ({ apiKey }) => {
+const TargetMarker = () => {
+  const { apiKey } = useApi(); // Access apiKey from ApiContext
   const [markerPosition, setMarkerPosition] = useState(null);
   const [routeData, setRouteData] = useState(null); // State to hold route data
 
@@ -27,7 +27,10 @@ const TargetMarker = ({ apiKey }) => {
 
   // Handler function to make the API request
   const fetchRouteData = async () => {
-    if (!markerPosition) return;
+    if (!markerPosition || !apiKey) {
+      console.warn("Missing marker position or API key");
+      return;
+    }
 
     const api_url = "https://nautical-hub.skippo.io/aws/autoroute";
     const auth_header = `Basic ${apiKey}`;
@@ -44,7 +47,6 @@ const TargetMarker = ({ apiKey }) => {
     });
 
     try {
-      // Make the API request with SSL verification disabled (handled in backend or node environment)
       const response = await fetch(`${api_url}?${params.toString()}`, {
         method: 'GET',
         headers: {
@@ -52,7 +54,6 @@ const TargetMarker = ({ apiKey }) => {
         }
       });
 
-      // Check if the request was successful
       if (response.ok) {
         const data = await response.json();
         setRouteData(data);
@@ -69,7 +70,6 @@ const TargetMarker = ({ apiKey }) => {
   const handleGoToSpot = () => {
     console.log("Navigating to spot:", markerPosition);
     fetchRouteData();
-    // You could add code here to adjust the map view, for example
   };
 
   const handleAddSpot = () => {
@@ -82,20 +82,18 @@ const TargetMarker = ({ apiKey }) => {
       <Marker position={markerPosition} icon={theTargetIcon} draggable={true}>
         <Popup>
           <div style={{ textAlign: 'center' }}>
-            {/* Styled title */}
             <Typography variant="h6" sx={{ fontWeight: 'bold', marginBottom: '8px' }}>
               Auto Spot Actions
             </Typography>
             
-            {/* Buttons in line */}
             <div style={{ display: 'flex', justifyContent: 'center', gap: '8px' }}>
               <Button
                 variant="contained"
                 startIcon={<Room />}
                 onClick={handleGoToSpot}
                 sx={{
-                  backgroundColor: '#4CAF50', // Custom green from Coolors
-                  '&:hover': { backgroundColor: '#388E3C' } // Darker green on hover
+                  backgroundColor: '#4CAF50',
+                  '&:hover': { backgroundColor: '#388E3C' }
                 }}
               >
                 Go to spot
@@ -105,9 +103,9 @@ const TargetMarker = ({ apiKey }) => {
                 startIcon={<AddLocation />}
                 onClick={handleAddSpot}
                 sx={{
-                  backgroundColor: '#FFD700', // Custom yellow from Coolors
-                  color: 'black', // Ensure text visibility
-                  '&:hover': { backgroundColor: '#FFC107' } // Darker yellow on hover
+                  backgroundColor: '#FFD700',
+                  color: 'black',
+                  '&:hover': { backgroundColor: '#FFC107' }
                 }}
               >
                 Add spot

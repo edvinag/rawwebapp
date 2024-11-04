@@ -45,7 +45,7 @@ export const DataProvider = ({ children }) => {
     fetchBoatData();
     fetchRouteData();
 
-    const boatDataInterval = setInterval(fetchBoatData, 300); // Fetch boat data every 300ms
+    const boatDataInterval = setInterval(fetchBoatData, 1000); // Fetch boat data every 300ms
     const routeDataInterval = setInterval(fetchRouteData, 10000); // Fetch route data every 10 seconds
 
     return () => {
