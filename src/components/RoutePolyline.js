@@ -1,6 +1,6 @@
 // src/components/RoutePolyline.js
 import React from 'react';
-import { Polyline, LayersControl } from 'react-leaflet';
+import { Polyline, LayersControl, CircleMarker } from 'react-leaflet';
 import { useDataContext } from '../contexts/DataContext';
 
 const { Overlay } = LayersControl;
@@ -13,10 +13,20 @@ const RoutePolyline = () => {
 
   return (
     <Overlay checked name="Route">
-      <Polyline 
-        positions={coordinates} 
-        pathOptions={{ color: 'blue' }} 
-      />
+      <>
+        <Polyline 
+          positions={coordinates} 
+          pathOptions={{ color: 'blue' }} 
+        />
+        {coordinates.map((coord, index) => (
+          <CircleMarker
+            key={index}
+            center={coord}
+            radius={3} // Adjust radius size for small circles
+            pathOptions={{ color: 'blue' }} // Optional: match polyline color
+          />
+        ))}
+      </>
     </Overlay>
   );
 };

@@ -6,6 +6,7 @@ import AISShipsLayer from './AISShipsLayer';
 import MyBoatMarker from './MyBoatMarker';
 import TargetMarker from './TargetMarker';
 import RoutePolyline from './RoutePolyline';
+import TargetLine from './TargetLine'; // Import BoatRouteLine component
 import BoatPath from './BoatPath'; // Import BoatPath component
 import 'leaflet/dist/leaflet.css';
 
@@ -20,6 +21,7 @@ const MapComponent = () => {
         <TargetMarker />
         <RoutePolyline />
         <BoatPath />
+        <TargetLine />
       </LayersControl>
       <MyBoatMarker />
     </MapContainer>
