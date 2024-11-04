@@ -4,9 +4,8 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 export const DataContext = createContext();
 
 export const DataProvider = ({ children }) => {
-  const [data, setData] = useState(null);
+  const [boatData, setBoatData] = useState({ path: [] }); // State for boat data including path
   const [routeData, setRouteData] = useState(null); // State for route data
-  const [boatPath, setBoatPath] = useState([]); // State for boat path
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -15,16 +14,19 @@ export const DataProvider = ({ children }) => {
       try {
         const response = await fetch('http://localhost:5000/all');
         const result = await response.json();
-        setData(result);
-
-        // Update boatPath with the latest GPS location
-        if (result.data && result.data.gps) {
-          const newPosition = [
-            result.data.gps.location.latitude,
-            result.data.gps.location.longitude,
-          ];
-          setBoatPath((prevPath) => [...prevPath, newPosition]);
-        }
+        
+        // Update boatData with the latest data and path
+        setBoatData((prevBoatData) => {
+          const newPath = prevBoatData.path || [];
+          if (result.data && result.data.gps) {
+            const newPosition = [
+              result.data.gps.location.latitude,
+              result.data.gps.location.longitude,
+            ];
+            newPath.push(newPosition);
+          }
+          return { ...result, path: newPath };
+        });
       } catch (err) {
         setError(err.message);
       } finally {
@@ -45,7 +47,7 @@ export const DataProvider = ({ children }) => {
     fetchBoatData();
     fetchRouteData();
 
-    const boatDataInterval = setInterval(fetchBoatData, 1000); // Fetch boat data every 300ms
+    const boatDataInterval = setInterval(fetchBoatData, 300); // Fetch boat data every 1 second
     const routeDataInterval = setInterval(fetchRouteData, 10000); // Fetch route data every 10 seconds
 
     return () => {
@@ -55,7 +57,7 @@ export const DataProvider = ({ children }) => {
   }, []);
 
   return (
-    <DataContext.Provider value={{ data, routeData, boatPath, loading, error }}>
+    <DataContext.Provider value={{ boatData, routeData, loading, error }}>
       {children}
     </DataContext.Provider>
   );

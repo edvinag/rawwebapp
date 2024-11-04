@@ -4,8 +4,9 @@ import { MapContainer, LayersControl } from 'react-leaflet';
 import TileLayers from './TileLayers';
 import AISShipsLayer from './AISShipsLayer';
 import MyBoatMarker from './MyBoatMarker';
-import TargetMarker from './TargetMarker'; // Import the new TargetMarker component
+import TargetMarker from './TargetMarker';
 import RoutePolyline from './RoutePolyline';
+import BoatPath from './BoatPath'; // Import BoatPath component
 import 'leaflet/dist/leaflet.css';
 
 const position = [57.573517, 11.9269]; // Initial center coordinates
@@ -18,6 +19,7 @@ const MapComponent = () => {
         <AISShipsLayer />
         <TargetMarker />
         <RoutePolyline />
+        <BoatPath />
       </LayersControl>
       <MyBoatMarker />
     </MapContainer>
