@@ -5,6 +5,7 @@ import TileLayers from './TileLayers';
 import AISShipsLayer from './AISShipsLayer';
 import MyBoatMarker from './MyBoatMarker';
 import TargetMarker from './TargetMarker'; // Import the new TargetMarker component
+import RoutePolyline from './RoutePolyline';
 import 'leaflet/dist/leaflet.css';
 
 const position = [57.573517, 11.9269]; // Initial center coordinates
@@ -16,6 +17,7 @@ const MapComponent = ({ apiKey }) => {
         <TileLayers />
         <AISShipsLayer apiKey={apiKey} />
         <TargetMarker apiKey={apiKey} />
+        <RoutePolyline />
       </LayersControl>
       <MyBoatMarker apiKey={apiKey} />
     </MapContainer>
