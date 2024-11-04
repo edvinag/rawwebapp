@@ -1,23 +1,25 @@
 // TargetPopup.js
-import React, { useState } from 'react';
+import React, { useContext } from 'react';
 import { Popup } from 'react-leaflet';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 import { Room, AddLocation } from '@mui/icons-material';
+import { useApi } from '../contexts/ApiContext';
+import { DataContext } from '../contexts/DataContext';
 
-const TargetPopup = ({ markerPosition, apiKey, boatData }) => {
-  const [routeData, setRouteData] = useState(null);
+const TargetPopup = ({ markerPosition, closePopup }) => {
+  const { apiKey } = useApi();
+  const { boatData } = useContext(DataContext);
 
-  // Handler function to make the API request
-  const fetchRouteData = async () => {
+  const fetchRouteData = async (startLongitude, startLatitude) => {
     if (!markerPosition || !apiKey) {
       console.warn("Missing marker position or API key");
-      return;
+      return null;
     }
 
     const api_url = "https://nautical-hub.skippo.io/aws/autoroute";
     const auth_header = `Basic ${apiKey}`;
-    const course = `${boatData.data.gps.location.longitude},${boatData.data.gps.location.latitude};${markerPosition.lng},${markerPosition.lat}`;
+    const course = `${startLongitude},${startLatitude};${markerPosition.lng},${markerPosition.lat}`;
 
     const params = new URLSearchParams({
       usehydrographica: "true",
@@ -37,25 +39,53 @@ const TargetPopup = ({ markerPosition, apiKey, boatData }) => {
 
       if (response.ok) {
         const data = await response.json();
-        setRouteData(data);
         console.log("Route data:", data);
+        return data;
       } else {
         console.error("Failed to retrieve data:", response.status, response.statusText);
+        return null;
       }
     } catch (error) {
       console.error("Error making request:", error);
+      return null;
     }
   };
 
-  // Handler functions for each button
-  const handleGoToSpot = () => {
-    console.log("Navigating to spot:", markerPosition);
-    fetchRouteData();
+  const pushRouteData = async (data, keepIndex) => {
+    const url = `http://localhost:5000/route?keepIndex=${keepIndex}`;
+    try {
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+      });
+
+      if (response.ok) {
+        console.log("Route data successfully pushed to local server");
+        closePopup(); // Close the popup after a successful push
+      } else {
+        console.error("Failed to push data to local server:", response.status, response.statusText);
+      }
+    } catch (error) {
+      console.error("Error pushing data to local server:", error);
+    }
   };
 
-  const handleAddSpot = () => {
-    console.log("Spot added at:", markerPosition);
-    fetchRouteData();
+  const handleGoToSpot = async () => {
+    const { longitude, latitude } = boatData.data.gps.location;
+    const data = await fetchRouteData(longitude, latitude);
+    if (data) {
+      pushRouteData(data, true);
+    }
+  };
+
+  const handleAddSpot = async () => {
+    const data = await fetchRouteData(0, 0);
+    if (data) {
+      pushRouteData(data, false);
+    }
   };
 
   return (
@@ -90,13 +120,6 @@ const TargetPopup = ({ markerPosition, apiKey, boatData }) => {
             Add spot
           </Button>
         </div>
-        
-        {/* Display the route data if available */}
-        {routeData && (
-          <Typography variant="body2" style={{ marginTop: '8px' }}>
-            Route Data: {JSON.stringify(routeData)}
-          </Typography>
-        )}
       </div>
     </Popup>
   );
