@@ -6,17 +6,20 @@ import * as L from 'leaflet';
 
 const { Overlay } = LayersControl;
 
+// Define variables for the circle and marker sizes
+const circleRadius = 7; // Adjust this value to change the marker icon size
+
 // Create a custom SVG circle icon for markers
 const createCircleIcon = () => {
   return L.divIcon({
     className: 'custom-marker-icon',
     html: `
-      <svg width="20" height="20" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-        <circle cx="10" cy="10" r="8" fill="blue" stroke="blue" stroke-width="2"/>
+      <svg width="${circleRadius * 2}" height="${circleRadius * 2}" viewBox="0 0 ${circleRadius * 2} ${circleRadius * 2}" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="${circleRadius}" cy="${circleRadius}" r="${circleRadius}" fill="blue" stroke="blue" stroke-width="0"/>
       </svg>
     `,
-    iconSize: [20, 20], // Size of the icon
-    iconAnchor: [10, 10], // Position the icon so that its center is the exact marker location
+    iconSize: [circleRadius * 2, circleRadius * 2], // Adjust icon size based on circle radius
+    iconAnchor: [circleRadius, circleRadius], // Position the icon so its center is the marker location
   });
 };
 
@@ -42,7 +45,7 @@ const RoutePolyline = () => {
       console.error('Error making request:', error);
     }
   };
-  
+
   // Function to handle marker drag start
   const handleMarkerDragStart = () => {
     setRouteFetchPaused(true); // Pause route fetch on drag start
@@ -93,14 +96,14 @@ const RoutePolyline = () => {
   return (
     <Overlay checked name="Route">
       <FeatureGroup>
-        <Polyline 
+        <Polyline
           ref={polylineRef} // Reference to access the Polyline for GeoJSON conversion
-          positions={coordinates} 
-          pathOptions={{ color: 'blue' }} 
+          positions={coordinates}
+          pathOptions={{ color: 'blue' }}
         />
         {coordinates.map((coord, index) => (
           <Marker
-            key={index}
+            key={`route-marker-${index}`}
             icon={createCircleIcon()}
             position={coord}
             draggable={true} // Enable dragging for each marker
