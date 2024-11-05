@@ -1,18 +1,34 @@
 // src/components/RoutePolyline.js
-import React from 'react';
-import { Polyline, LayersControl, CircleMarker } from 'react-leaflet';
+import React, { useRef } from 'react';
+import { Polyline, LayersControl, Marker, Popup, FeatureGroup } from 'react-leaflet';
 import { useDataContext } from '../contexts/DataContext';
+import * as L from 'leaflet';
 
 const { Overlay } = LayersControl;
 
+// Create a custom SVG circle icon for markers
+const createCircleIcon = () => {
+  return L.divIcon({
+    className: 'custom-marker-icon',
+    html: `
+      <svg width="20" height="20" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="10" cy="10" r="8" fill="blue" stroke="blue" stroke-width="2"/>
+      </svg>
+    `,
+    iconSize: [20, 20], // Size of the icon
+    iconAnchor: [10, 10], // Position the icon so that its center is the exact marker location
+  });
+};
+
 const RoutePolyline = () => {
-  const { routeData } = useDataContext(); // Access route data from DataContext
+  const { routeData, updateRouteData, setRouteFetchPaused } = useDataContext();
+  const polylineRef = useRef(); // Reference to the Polyline
 
   // Convert routeData coordinates to Leaflet [lat, lng] format if available
   const coordinates = routeData?.geometry?.coordinates.map(coord => [coord[1], coord[0]]) || [];
 
-  // Function to handle double-click on a CircleMarker
-  const handleCircleMarkerDblClick = async (index) => {
+  // Function to handle double-click on a Marker
+  const handleMarkerDblClick = async (index) => {
     try {
       const response = await fetch(`http://localhost:5000/route?goalIndex=${index}`, {
         method: 'GET',
@@ -26,26 +42,79 @@ const RoutePolyline = () => {
       console.error('Error making request:', error);
     }
   };
+  
+  // Function to handle marker drag start
+  const handleMarkerDragStart = () => {
+    setRouteFetchPaused(true); // Pause route fetch on drag start
+    console.log('Drag started');
+  };
+
+  // Function to handle marker drag to update polyline in real-time
+  const handleMarkerDrag = (event, index) => {
+    const { lat, lng } = event.target.getLatLng();
+    coordinates[index] = [lat, lng]; // Update the coordinate in the array
+
+    // Update the Polyline with the new coordinates
+    if (polylineRef.current) {
+      polylineRef.current.setLatLngs(coordinates);
+    }
+  };
+
+  // Function to handle marker drag end to update route on the server
+  const handleMarkerDragEnd = async (event, index) => {
+    const { lat, lng } = event.target.getLatLng();
+    coordinates[index] = [lat, lng]; // Ensure final position is set
+
+    if (polylineRef.current) {
+      const geoJson = polylineRef.current.toGeoJSON();
+
+      try {
+        const response = await fetch(`http://localhost:5000/route?keepIndex=true`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(geoJson), // Send GeoJSON to server
+        });
+
+        if (response.ok) {
+          const updatedRouteData = await response.json();
+          updateRouteData(updatedRouteData);
+        } else {
+          console.error(`Failed to update route`);
+        }
+      } catch (error) {
+        console.error('Error updating route:', error);
+      }
+    }
+    setRouteFetchPaused(false); // Resume route fetch after drag end
+  };
 
   return (
     <Overlay checked name="Route">
-      <>
+      <FeatureGroup>
         <Polyline 
+          ref={polylineRef} // Reference to access the Polyline for GeoJSON conversion
           positions={coordinates} 
           pathOptions={{ color: 'blue' }} 
         />
         {coordinates.map((coord, index) => (
-          <CircleMarker
+          <Marker
             key={index}
-            center={coord}
-            radius={3} // Adjust radius size for small circles
-            pathOptions={{ color: 'blue' }} // Optional: match polyline color
+            icon={createCircleIcon()}
+            position={coord}
+            draggable={true} // Enable dragging for each marker
             eventHandlers={{
-              dblclick: () => handleCircleMarkerDblClick(index)
+              dblclick: () => handleMarkerDblClick(index),
+              dragstart: handleMarkerDragStart, // Pause route fetch on drag start
+              drag: (event) => handleMarkerDrag(event, index), // Real-time update on `drag`
+              dragend: (event) => handleMarkerDragEnd(event, index), // Send data to server on `dragend`
             }}
-          />
+          >
+            <Popup>Point {index}</Popup>
+          </Marker>
         ))}
-      </>
+      </FeatureGroup>
     </Overlay>
   );
 };

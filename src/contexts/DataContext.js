@@ -8,13 +8,19 @@ export const DataProvider = ({ children }) => {
   const [routeData, setRouteData] = useState(null); // State for route data
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [fetchPaused, setFetchPaused] = useState(false); // State to pause route fetching
 
   useEffect(() => {
     const fetchBoatData = async () => {
+      if (fetchPaused) {
+        console.log('Fetch Boat Data paused');
+        return; // Skip fetching route data if paused
+      }
+
       try {
         const response = await fetch('http://localhost:5000/all');
         const result = await response.json();
-        
+
         // Update boatData with the latest data and path
         setBoatData((prevBoatData) => {
           const newPath = prevBoatData.path || [];
@@ -34,7 +40,19 @@ export const DataProvider = ({ children }) => {
       }
     };
 
+    const boatDataInterval = setInterval(fetchBoatData, 500); // Fetch boat data every 1 second
+    return () => {
+      clearInterval(boatDataInterval);
+    };
+  }, [fetchPaused]);
+
+  useEffect(() => {
     const fetchRouteData = async () => {
+      if (fetchPaused) {
+        console.log('Fetch Route Data paused');
+        return; // Skip fetching route data if paused
+      }
+
       try {
         const response = await fetch('http://localhost:5000/route');
         const routeResult = await response.json();
@@ -44,20 +62,30 @@ export const DataProvider = ({ children }) => {
       }
     };
 
-    fetchBoatData();
-    fetchRouteData();
-
-    const boatDataInterval = setInterval(fetchBoatData, 600); // Fetch boat data every 1 second
-    const routeDataInterval = setInterval(fetchRouteData, 10000); // Fetch route data every 10 seconds
+    const routeDataInterval = setInterval(fetchRouteData, 5000); // Fetch route data every 10 seconds
 
     return () => {
-      clearInterval(boatDataInterval);
       clearInterval(routeDataInterval);
     };
-  }, []);
+  }, [fetchPaused]);
+
+  // Function to update route data
+  const updateRouteData = (newRouteData) => {
+    setRouteData(newRouteData);
+  };
+
+  // Functions to control the routeFetchPaused state
+  const setRouteFetchPaused = (paused) => setFetchPaused(paused);
 
   return (
-    <DataContext.Provider value={{ boatData, routeData, loading, error }}>
+    <DataContext.Provider value={{
+      boatData,
+      routeData,
+      loading,
+      error,
+      updateRouteData,
+      setRouteFetchPaused,
+    }}>
       {children}
     </DataContext.Provider>
   );
