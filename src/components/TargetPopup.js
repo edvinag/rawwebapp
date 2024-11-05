@@ -8,7 +8,7 @@ import { DataContext } from '../contexts/DataContext';
 
 const TargetPopup = ({ markerPosition, closePopup }) => {
   const { apiKey } = useApi();
-  const { boatData } = useContext(DataContext);
+  const { boatData, routeData } = useContext(DataContext);
 
   const fetchRouteData = async (startLongitude, startLatitude) => {
     if (!markerPosition || !apiKey) {
@@ -38,7 +38,8 @@ const TargetPopup = ({ markerPosition, closePopup }) => {
 
       if (response.ok) {
         const data = await response.json();
-        console.log("Route data:", data);
+        console.log("New route:", data);
+        console.log("Old route:", routeData);
         return data;
       } else {
         console.error("Failed to retrieve data:", response.status, response.statusText);
@@ -51,11 +52,9 @@ const TargetPopup = ({ markerPosition, closePopup }) => {
   };
 
   const pushRouteData = async (data, keepIndex, goalIndex=null) => {
-    let url = `http://localhost:5000/route?`;
-    if (keepIndex){
-      url += `keepIndex=${keepIndex}`;
-    } else if (goalIndex !== null) {
-      url += `goalIndex=${goalIndex}`;
+    let url = `http://localhost:5000/route?keepIndex=${keepIndex}`;
+    if (goalIndex !== null) {
+      url += `&goalIndex=${goalIndex}`;
     }
 
     try {
@@ -86,16 +85,38 @@ const TargetPopup = ({ markerPosition, closePopup }) => {
       data.geometry.coordinates[0] = [longitude, latitude];
   
       // Push the modified route data
-      pushRouteData(data, false, 3);
+      pushRouteData(data, false, 1);
     }
   };
 
   const handleAddSpot = async () => {
-    const data = await fetchRouteData(0, 0);
-    if (data) {
-      pushRouteData(data, true);
+    // Check if routeData has existing coordinates
+    if (!routeData || !routeData.geometry || routeData.geometry.coordinates.length === 0) {
+      console.warn("No existing route data to extend.");
+      return;
+    }
+  
+    // Get the last coordinate from routeData to use as the starting point
+    const lastCoordinate = routeData.geometry.coordinates[routeData.geometry.coordinates.length - 1];
+    const [startLongitude, startLatitude] = lastCoordinate;
+  
+    // Fetch new route data starting from the last coordinate
+    const newData = await fetchRouteData(startLongitude, startLatitude);
+    if (newData) {
+      // Combine old route data with new route data
+      const combinedRouteData = {
+        ...routeData,  // Clone old route data structure
+        geometry: {
+          ...routeData.geometry,
+          coordinates: [...routeData.geometry.coordinates, ...newData.geometry.coordinates]
+        }
+      };
+  
+      // Push the combined route data
+      pushRouteData(combinedRouteData, true);
     }
   };
+  
 
   return (
     <div style={{ textAlign: 'center' }}>

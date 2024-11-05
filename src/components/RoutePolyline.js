@@ -128,7 +128,6 @@ const RoutePolyline = () => {
               dblclick: () => handleMarkerDblClick(index), // Keep double-click functionality
             }}
           >
-            <Popup>Point {index}</Popup>
           </Marker>
         ))}
       </FeatureGroup>
