@@ -41,13 +41,7 @@ const TargetLine = () => {
           positions={[boatPosition, targetPosition]}
           pathOptions={{
             color: 'green',
-          }}
-        >
-          <Tooltip sticky>
-            <strong>Route to Target</strong><br />
-            <strong>Latitude:</strong> {targetPosition[0]}<br />
-            <strong>Longitude:</strong> {targetPosition[1]}
-          </Tooltip>
+          }}>
         </Polyline>
       </FeatureGroup>
     </Overlay>

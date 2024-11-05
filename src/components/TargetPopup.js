@@ -1,6 +1,5 @@
 // TargetPopup.js
 import React, { useContext } from 'react';
-import { Popup } from 'react-leaflet';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 import { Room, AddLocation } from '@mui/icons-material';
@@ -51,8 +50,14 @@ const TargetPopup = ({ markerPosition, closePopup }) => {
     }
   };
 
-  const pushRouteData = async (data, keepIndex) => {
-    const url = `http://localhost:5000/route?keepIndex=${keepIndex}`;
+  const pushRouteData = async (data, keepIndex, goalIndex=null) => {
+    let url = `http://localhost:5000/route?`;
+    if (keepIndex){
+      url += `keepIndex=${keepIndex}`;
+    } else if (goalIndex !== null) {
+      url += `goalIndex=${goalIndex}`;
+    }
+
     try {
       const response = await fetch(url, {
         method: 'POST',
@@ -77,51 +82,53 @@ const TargetPopup = ({ markerPosition, closePopup }) => {
     const { longitude, latitude } = boatData.data.gps.location;
     const data = await fetchRouteData(longitude, latitude);
     if (data) {
-      pushRouteData(data, true);
+      // Modify the first coordinate to be the boat's current position
+      data.geometry.coordinates[0] = [longitude, latitude];
+  
+      // Push the modified route data
+      pushRouteData(data, false, 3);
     }
   };
 
   const handleAddSpot = async () => {
     const data = await fetchRouteData(0, 0);
     if (data) {
-      pushRouteData(data, false);
+      pushRouteData(data, true);
     }
   };
 
   return (
-    <Popup>
-      <div style={{ textAlign: 'center' }}>
-        <Typography variant="h6" sx={{ fontWeight: 'bold', marginBottom: '8px' }}>
-          Auto Spot Actions
-        </Typography>
-        
-        <div style={{ display: 'flex', justifyContent: 'center', gap: '8px' }}>
-          <Button
-            variant="contained"
-            startIcon={<Room />}
-            onClick={handleGoToSpot}
-            sx={{
-              backgroundColor: '#4CAF50',
-              '&:hover': { backgroundColor: '#388E3C' }
-            }}
-          >
-            Go to spot
-          </Button>
-          <Button
-            variant="contained"
-            startIcon={<AddLocation />}
-            onClick={handleAddSpot}
-            sx={{
-              backgroundColor: '#FFD700',
-              color: 'black',
-              '&:hover': { backgroundColor: '#FFC107' }
-            }}
-          >
-            Add spot
-          </Button>
-        </div>
+    <div style={{ textAlign: 'center' }}>
+      <Typography variant="h6" sx={{ fontWeight: 'bold', marginBottom: '8px' }}>
+        Auto Spot Actions
+      </Typography>
+      
+      <div style={{ display: 'flex', justifyContent: 'center', gap: '8px' }}>
+        <Button
+          variant="contained"
+          startIcon={<Room />}
+          onClick={handleGoToSpot}
+          sx={{
+            backgroundColor: '#4CAF50',
+            '&:hover': { backgroundColor: '#388E3C' }
+          }}
+        >
+          Go to spot
+        </Button>
+        <Button
+          variant="contained"
+          startIcon={<AddLocation />}
+          onClick={handleAddSpot}
+          sx={{
+            backgroundColor: '#FFD700',
+            color: 'black',
+            '&:hover': { backgroundColor: '#FFC107' }
+          }}
+        >
+          Add spot
+        </Button>
       </div>
-    </Popup>
+    </div>
   );
 };
 
