@@ -14,7 +14,7 @@ const createCircleIcon = () => L.divIcon({
 });
 
 const RoutePolyline = () => {
-  const { routeData, updateRouteData, setRouteFetchPaused, pushRouteData } = useDataContext();
+  const { routeData, setRouteFetchPaused, pushRouteData } = useDataContext();
   const polylineRef = useRef();
   const markerRefs = useRef([]);
   const coordinates = routeData?.geometry?.coordinates.map(coord => [coord[1], coord[0]]) || [];
@@ -24,8 +24,8 @@ const RoutePolyline = () => {
   useEffect(() => {
     // Cleanup function to remove map event listeners on unmount
     return () => {
-      map.off('mousemove', handleMarkerMouseMove);
-      map.off('mouseup', handleMarkerMouseUp);
+      map.off('mousemove');
+      map.off('mouseup');
     };
   }, [map]);
 
