@@ -1,31 +1,18 @@
-import React, { useState, useEffect } from 'react';
-import { Drawer, List, ListItem, ListItemText, IconButton, Box, AppBar, Toolbar, Typography, TextField, Button } from '@mui/material';
+// src/App.js
+import React, { useState } from 'react';
+import { IconButton, Box, AppBar, Toolbar, Typography, Checkbox, FormControlLabel } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
-import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 
 import Home from './components/Home';
 import MapComponent from './components/MapComponent';
+import ApiKeyDrawer from './components/ApiKeyDrawer';
+import { DataProvider } from './contexts/DataContext';
+import { ApiProvider } from './contexts/ApiContext';
 
 const App = () => {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-  const [apiKey, setApiKey] = useState('');
-
-  useEffect(() => {
-    // Load API key from local storage if available
-    const storedApiKey = localStorage.getItem('apiKey');
-    if (storedApiKey) {
-      setApiKey(storedApiKey);
-    }
-  }, []);
-
-  const handleApiKeyChange = (event) => {
-    setApiKey(event.target.value);
-  };
-
-  const saveApiKey = () => {
-    localStorage.setItem('apiKey', apiKey);
-    alert('API Key saved successfully!');
-  };
+  const [showTargetMarker, setShowTargetMarker] = useState(true); // New state for TargetMarker
 
   const toggleDrawer = (open) => (event) => {
     if (event.type === 'keydown' && (event.key === 'Tab' || event.key === 'Shift')) {
@@ -40,60 +27,44 @@ const App = () => {
   ];
 
   return (
-    <Router>
-      <Box sx={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
-        <AppBar position="static">
-          <Toolbar>
-            <IconButton edge="start" color="inherit" aria-label="menu" onClick={toggleDrawer(true)}>
-              <MenuIcon />
-            </IconButton>
-            <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-              My Leaflet App
-            </Typography>
-          </Toolbar>
-        </AppBar>
+    <ApiProvider>
+      <DataProvider>
+        <Router>
+          <Box sx={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
+            <AppBar position="static">
+              <Toolbar>
+                <IconButton edge="start" color="inherit" aria-label="menu" onClick={toggleDrawer(true)}>
+                  <MenuIcon />
+                </IconButton>
+                <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+                  RawCat
+                </Typography>
+                {/* Checkbox to toggle TargetMarker */}
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      checked={showTargetMarker}
+                      onChange={() => setShowTargetMarker(!showTargetMarker)}
+                      color="default"
+                    />
+                  }
+                  label="Show Target Marker"
+                />
+              </Toolbar>
+            </AppBar>
 
-        <Drawer anchor="left" open={isDrawerOpen} onClose={toggleDrawer(false)}>
-          <Box
-            sx={{ width: 250 }}
-            role="presentation"
-            onClick={toggleDrawer(false)}
-            onKeyDown={toggleDrawer(false)}
-          >
-            <List>
-              {menuItems.map(({ text, route }) => (
-                <ListItem button component={Link} to={route} key={text}>
-                  <ListItemText primary={text} />
-                </ListItem>
-              ))}
-            </List>
-            
-            {/* API Key Input Section */}
-            <Box sx={{ p: 2 }} onClick={(e) => e.stopPropagation()} onKeyDown={(e) => e.stopPropagation()}>
-              <TextField
-                label="API Key"
-                variant="outlined"
-                fullWidth
-                value={apiKey}
-                onChange={handleApiKeyChange}
-                placeholder="Enter API Key"
-              />
-              <Button variant="contained" color="primary" onClick={saveApiKey} sx={{ mt: 1 }}>
-                Save API Key
-              </Button>
+            <ApiKeyDrawer isDrawerOpen={isDrawerOpen} toggleDrawer={toggleDrawer} menuItems={menuItems} />
+
+            <Box sx={{ flex: 1 }}>
+              <Routes>
+                <Route path="/" element={<Home />} />
+                <Route path="/map" element={<MapComponent showTargetMarker={showTargetMarker} />} />
+              </Routes>
             </Box>
           </Box>
-        </Drawer>
-
-        <Box sx={{ flex: 1 }}>
-          <Routes>
-            <Route path="/" element={<Home />} />
-            {/* Pass the API Key to MapComponent */}
-            <Route path="/map" element={<MapComponent apiKey={apiKey} />} />
-          </Routes>
-        </Box>
-      </Box>
-    </Router>
+        </Router>
+      </DataProvider>
+    </ApiProvider>
   );
 };
 
