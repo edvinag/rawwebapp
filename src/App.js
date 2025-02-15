@@ -37,7 +37,7 @@ const App = () => {
                   <MenuIcon />
                 </IconButton>
                 <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-                  My Leaflet App
+                  RawCat
                 </Typography>
                 {/* Checkbox to toggle TargetMarker */}
                 <FormControlLabel
