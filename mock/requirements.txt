@@ -1,0 +1,6 @@
+Flask
+requests
+flask-cors
+numpy
+pymap3d
+simple_pid

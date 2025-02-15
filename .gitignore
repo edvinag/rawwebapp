@@ -23,3 +23,7 @@ credentials
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+
+# mock
+/mock/**/*.pyc
