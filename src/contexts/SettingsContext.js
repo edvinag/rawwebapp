@@ -1,10 +1,10 @@
 import React, { createContext, useContext, useState } from 'react';
 
 // Create the context
-const ApiContext = createContext();
+const SettingsContext = createContext();
 
 // Custom hook to access the context
-export const useApi = () => useContext(ApiContext);
+export const useApi = () => useContext(SettingsContext);
 
 // Provider component
 export const ApiProvider = ({ children }) => {
@@ -21,8 +21,8 @@ export const ApiProvider = ({ children }) => {
   };
 
   return (
-    <ApiContext.Provider value={{ apiKey, saveApiKey }}>
+    <SettingsContext.Provider value={{ apiKey, saveApiKey }}>
       {children}
-    </ApiContext.Provider>
+    </SettingsContext.Provider>
   );
 };

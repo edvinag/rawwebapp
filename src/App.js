@@ -5,9 +5,9 @@ import { HashRouter as Router, Routes, Route } from 'react-router-dom';
 
 import Home from './components/Home';
 import MapComponent from './components/MapComponent';
-import ApiKeyDrawer from './components/ApiKeyDrawer';
+import SettingsDrawer from './components/SettingsDrawer';
 import { DataProvider } from './contexts/DataContext';
-import { ApiProvider } from './contexts/ApiContext';
+import { ApiProvider } from './contexts/SettingsContext';
 
 const App = () => {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
@@ -51,7 +51,7 @@ const App = () => {
               </Toolbar>
             </AppBar>
 
-            <ApiKeyDrawer isDrawerOpen={isDrawerOpen} toggleDrawer={toggleDrawer} menuItems={menuItems} />
+            <SettingsDrawer isDrawerOpen={isDrawerOpen} toggleDrawer={toggleDrawer} menuItems={menuItems} />
 
             <Box sx={{ flex: 1 }}>
               <Routes>

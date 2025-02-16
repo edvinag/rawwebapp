@@ -1,10 +1,10 @@
-// src/components/ApiKeyDrawer.js
+// src/components/SettingsDrawer.js
 import React, { useState } from 'react';
 import { Drawer, List, ListItem, ListItemText, Box, TextField, Button } from '@mui/material';
 import { Link } from 'react-router-dom';
-import { useApi } from '../contexts/ApiContext';
+import { useApi } from '../contexts/SettingsContext';
 
-const ApiKeyDrawer = ({ isDrawerOpen, toggleDrawer, menuItems }) => {
+const SettingsDrawer = ({ isDrawerOpen, toggleDrawer, menuItems }) => {
   const { apiKey, saveApiKey } = useApi(); // Access API context here
   const [inputApiKey, setInputApiKey] = useState(apiKey || '');
 
@@ -52,4 +52,4 @@ const ApiKeyDrawer = ({ isDrawerOpen, toggleDrawer, menuItems }) => {
   );
 };
 
-export default ApiKeyDrawer;
+export default SettingsDrawer;
