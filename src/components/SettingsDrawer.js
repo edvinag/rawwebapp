@@ -5,16 +5,23 @@ import { Link } from 'react-router-dom';
 import { useApi } from '../contexts/SettingsContext';
 
 const SettingsDrawer = ({ isDrawerOpen, toggleDrawer, menuItems }) => {
-  const { apiKey, saveApiKey } = useApi(); // Access API context here
+  const { apiKey, saveApiKey, serviceUrl, saveServiceUrl } = useApi(); // Access API and Service URL context
+
   const [inputApiKey, setInputApiKey] = useState(apiKey || '');
+  const [inputServiceUrl, setInputServiceUrl] = useState(serviceUrl || 'http://localhost:5000');
 
-  const handleApiKeyChange = (event) => {
-    setInputApiKey(event.target.value);
-  };
-
+  // Handlers for API Key
+  const handleApiKeyChange = (event) => setInputApiKey(event.target.value);
   const saveApiKeyToContext = () => {
     saveApiKey(inputApiKey);
     alert('API Key saved successfully!');
+  };
+
+  // Handlers for Service URL
+  const handleServiceUrlChange = (event) => setInputServiceUrl(event.target.value);
+  const saveServiceUrlToContext = () => {
+    saveServiceUrl(inputServiceUrl);
+    alert('Service URL saved successfully!');
   };
 
   return (
@@ -33,8 +40,9 @@ const SettingsDrawer = ({ isDrawerOpen, toggleDrawer, menuItems }) => {
           ))}
         </List>
 
-        {/* API Key Input Section */}
+        {/* Settings Input Section */}
         <Box sx={{ p: 2 }} onClick={(e) => e.stopPropagation()} onKeyDown={(e) => e.stopPropagation()}>
+          {/* API Key Input */}
           <TextField
             label="API Key"
             variant="outlined"
@@ -42,9 +50,24 @@ const SettingsDrawer = ({ isDrawerOpen, toggleDrawer, menuItems }) => {
             value={inputApiKey}
             onChange={handleApiKeyChange}
             placeholder="Enter API Key"
+            sx={{ mb: 2 }}
           />
-          <Button variant="contained" color="primary" onClick={saveApiKeyToContext} sx={{ mt: 1 }}>
+          <Button variant="contained" color="primary" onClick={saveApiKeyToContext} fullWidth>
             Save API Key
+          </Button>
+
+          {/* Service URL Input */}
+          <TextField
+            label="Service URL"
+            variant="outlined"
+            fullWidth
+            value={inputServiceUrl}
+            onChange={handleServiceUrlChange}
+            placeholder="Enter Service URL"
+            sx={{ mt: 2, mb: 2 }}
+          />
+          <Button variant="contained" color="secondary" onClick={saveServiceUrlToContext} fullWidth>
+            Save Service URL
           </Button>
         </Box>
       </Box>
