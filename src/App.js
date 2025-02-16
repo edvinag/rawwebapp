@@ -1,8 +1,7 @@
-// src/App.js
 import React, { useState } from 'react';
 import { IconButton, Box, AppBar, Toolbar, Typography, Checkbox, FormControlLabel } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { HashRouter as Router, Routes, Route } from 'react-router-dom';
 
 import Home from './components/Home';
 import MapComponent from './components/MapComponent';
@@ -39,7 +38,6 @@ const App = () => {
                 <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
                   RawCat
                 </Typography>
-                {/* Checkbox to toggle TargetMarker */}
                 <FormControlLabel
                   control={
                     <Checkbox
