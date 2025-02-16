@@ -27,7 +27,7 @@ const ApiKeyDrawer = ({ isDrawerOpen, toggleDrawer, menuItems }) => {
       >
         <List>
           {menuItems.map(({ text, route }) => (
-            <ListItem button component={Link} to={route} key={text}>
+            <ListItem component={Link} to={route} key={text} sx={{ textDecoration: 'none', color: 'inherit' }}>
               <ListItemText primary={text} />
             </ListItem>
           ))}
