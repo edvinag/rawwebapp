@@ -11,6 +11,7 @@ export const DataProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [fetchPaused, setFetchPaused] = useState(false);
+  const [follow, setFollow] = useState(false); // Add follow state
 
   useEffect(() => {
     const fetchBoatData = async () => {
@@ -96,6 +97,8 @@ export const DataProvider = ({ children }) => {
       routeData,
       loading,
       error,
+      follow, // Expose follow state
+      setFollow, // Expose setFollow function
       updateRouteData,
       setRouteFetchPaused,
       pushRouteData, // Expose pushRouteData
