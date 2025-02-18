@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useDataContext } from '../contexts/DataContext';
 import { Line } from 'react-chartjs-2';
 import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend } from 'chart.js';
+import { Container, Typography, Card, CardContent, Grid, CircularProgress } from '@mui/material';
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
 
@@ -20,10 +21,7 @@ const BoatDataPage = () => {
   const calculateCourseDiff = (course, refCourse) => {
     let diff = course - refCourse;
     diff = (diff + 360) % 360;
-    if (diff > 180) {
-      diff = 360 - diff;
-    }
-    return diff;
+    return diff > 180 ? 360 - diff : diff;
   };
 
   useEffect(() => {
@@ -34,11 +32,11 @@ const BoatDataPage = () => {
   }, []);
 
   useEffect(() => {
-    if (boatData && boatData.data) {
+    if (boatData?.data) {
       const { gps, rudder, controller } = boatData.data;
       const courseDiff = calculateCourseDiff(gps.course, boatData.settings.controller.refCourse);
       const now = new Date().getTime();
-
+      
       const newHistoricalData = {
         gpsCourse: [...historicalData.gpsCourse, gps.course],
         controllerRefCourse: [...historicalData.controllerRefCourse, boatData.settings.controller.refCourse],
@@ -49,151 +47,85 @@ const BoatDataPage = () => {
         timestamps: [...historicalData.timestamps, now]
       };
 
-      // Filter data to include only the last 30 seconds
       const timeFilter = now - 30 * 1000;
-      const filteredHistoricalData = {
-        gpsCourse: newHistoricalData.gpsCourse.filter((_, index) => newHistoricalData.timestamps[index] >= timeFilter),
-        controllerRefCourse: newHistoricalData.controllerRefCourse.filter((_, index) => newHistoricalData.timestamps[index] >= timeFilter),
-        courseDiff: newHistoricalData.courseDiff.filter((_, index) => newHistoricalData.timestamps[index] >= timeFilter),
-        rudderVoltage: newHistoricalData.rudderVoltage.filter((_, index) => newHistoricalData.timestamps[index] >= timeFilter),
-        rudderFilteredVoltage: newHistoricalData.rudderFilteredVoltage.filter((_, index) => newHistoricalData.timestamps[index] >= timeFilter),
-        labels: newHistoricalData.labels.filter((_, index) => newHistoricalData.timestamps[index] >= timeFilter),
-        timestamps: newHistoricalData.timestamps.filter(timestamp => timestamp >= timeFilter)
-      };
-
-      setHistoricalData(filteredHistoricalData);
-      localStorage.setItem('historicalData', JSON.stringify(filteredHistoricalData));
+      setHistoricalData({
+        gpsCourse: newHistoricalData.gpsCourse.filter((_, i) => newHistoricalData.timestamps[i] >= timeFilter),
+        controllerRefCourse: newHistoricalData.controllerRefCourse.filter((_, i) => newHistoricalData.timestamps[i] >= timeFilter),
+        courseDiff: newHistoricalData.courseDiff.filter((_, i) => newHistoricalData.timestamps[i] >= timeFilter),
+        rudderVoltage: newHistoricalData.rudderVoltage.filter((_, i) => newHistoricalData.timestamps[i] >= timeFilter),
+        rudderFilteredVoltage: newHistoricalData.rudderFilteredVoltage.filter((_, i) => newHistoricalData.timestamps[i] >= timeFilter),
+        labels: newHistoricalData.labels.filter((_, i) => newHistoricalData.timestamps[i] >= timeFilter),
+        timestamps: newHistoricalData.timestamps.filter((t) => t >= timeFilter)
+      });
     }
   }, [boatData]);
 
-  if (loading) {
-    return <div>Loading...</div>;
-  }
-
-  if (error) {
-    return <div>Error: {error}</div>;
-  }
-
-  if (!boatData || !boatData.data) {
-    return <div>No data available</div>;
-  }
+  if (loading) return <CircularProgress sx={{ display: 'block', mx: 'auto', mt: 5 }} />;
+  if (error) return <Typography color="error">Error: {error}</Typography>;
+  if (!boatData?.data) return <Typography>No data available</Typography>;
 
   const { gps, rudder, controller } = boatData.data;
 
   const data = {
     labels: historicalData.labels,
     datasets: [
-      {
-        label: 'GPS Course',
-        data: historicalData.gpsCourse,
-        borderColor: 'rgba(75, 192, 192, 1)',
-        backgroundColor: 'rgba(75, 192, 192, 0.2)',
-        fill: false,
-      },
-      {
-        label: 'Controller Ref Course',
-        data: historicalData.controllerRefCourse,
-        borderColor: 'rgba(153, 102, 255, 1)',
-        backgroundColor: 'rgba(153, 102, 255, 0.2)',
-        fill: false,
-      },
-      {
-        label: 'Course Diff',
-        data: historicalData.courseDiff,
-        borderColor: 'rgba(255, 159, 64, 1)',
-        backgroundColor: 'rgba(255, 159, 64, 0.2)',
-        fill: false,
-      },
+      { label: 'GPS Course', data: historicalData.gpsCourse, borderColor: '#4bc0c0' },
+      { label: 'Controller Ref Course', data: historicalData.controllerRefCourse, borderColor: '#9966ff' },
+      { label: 'Course Diff', data: historicalData.courseDiff, borderColor: '#ff9f40' },
     ],
   };
 
   const rudderData = {
     labels: historicalData.labels,
     datasets: [
-      {
-        label: 'Rudder Voltage',
-        data: historicalData.rudderVoltage,
-        borderColor: 'rgba(54, 162, 235, 1)',
-        backgroundColor: 'rgba(54, 162, 235, 0.2)',
-        fill: false,
-      },
-      {
-        label: 'Rudder Filtered Voltage',
-        data: historicalData.rudderFilteredVoltage,
-        borderColor: 'rgba(255, 206, 86, 1)',
-        backgroundColor: 'rgba(255, 206, 86, 0.2)',
-        fill: false,
-      },
+      { label: 'Rudder Voltage', data: historicalData.rudderVoltage, borderColor: '#36a2eb' },
+      { label: 'Rudder Filtered Voltage', data: historicalData.rudderFilteredVoltage, borderColor: '#ffce56' },
     ],
   };
 
-  const options = {
-    responsive: true,
-    animation: false,
-    plugins: {
-      legend: {
-        position: 'top',
-      },
-      title: {
-        display: true,
-        text: 'Boat Data Degrees',
-      },
-    },
-    scales: {
-      x: {
-        type: 'category',
-        position: 'bottom',
-      },
-    },
-  };
-
-  const rudderOptions = {
-    responsive: true,
-    animation: false,
-    plugins: {
-      legend: {
-        position: 'top',
-      },
-      title: {
-        display: true,
-        text: 'Rudder Voltage',
-      },
-    },
-    scales: {
-      x: {
-        type: 'category',
-        position: 'bottom',
-      },
-    },
-  };
+  const chartOptions = { responsive: true, animation: false, plugins: { legend: { position: 'top' } } };
 
   return (
-    <div>
-      <h1>Boat Data</h1>
-      <h2>GPS</h2>
-      <p>Latitude: {gps.location.latitude}</p>
-      <p>Longitude: {gps.location.longitude}</p>
-      <p>Course: {gps.course}</p>
-
-      <h2>Rudder</h2>
-      <p>Position: {rudder.position}</p>
-      <p>Voltage: {rudder.voltage}</p>
-      <p>Filtered Voltage: {rudder.filteredVoltage}</p>
-      <p>Runner movement: {rudder.larboard ? 'larboard' : rudder.starboard ? 'starboard' : 'none'}</p>
-
-      <h2>Controller</h2>
-      <p>Output Min: {controller.output.min}</p>
-      <p>Output Max: {controller.output.max}</p>
-      <p>Output Zero: {controller.output.zero}</p>
-      <p>Output: {controller.error}</p>
-      <p>Course Diff: {calculateCourseDiff(gps.course, boatData.settings.controller.refCourse)}</p>
-
-      <h2>Graph</h2>
-      <Line data={data} options={options} />
-
-      <h2>Rudder Voltage Graph</h2>
-      <Line data={rudderData} options={rudderOptions} />
-    </div>
+    <Container sx={{ mt: 4 }}>
+      <Typography variant="h4" gutterBottom>Boat Data</Typography>
+      
+      <Grid container spacing={2}>
+        <Grid item xs={12} md={4}>
+          <Card><CardContent>
+            <Typography variant="h6">GPS</Typography>
+            <Typography>Latitude: {gps.location.latitude}</Typography>
+            <Typography>Longitude: {gps.location.longitude}</Typography>
+            <Typography>Course: {gps.course}</Typography>
+          </CardContent></Card>
+        </Grid>
+        <Grid item xs={12} md={4}>
+          <Card><CardContent>
+            <Typography variant="h6">Rudder</Typography>
+            <Typography>Position: {rudder.position}</Typography>
+            <Typography>Voltage: {rudder.voltage}</Typography>
+            <Typography>Filtered Voltage: {rudder.filteredVoltage}</Typography>
+          </CardContent></Card>
+        </Grid>
+        <Grid item xs={12} md={4}>
+          <Card><CardContent>
+            <Typography variant="h6">Controller</Typography>
+            <Typography>Output Min: {controller.output.min}</Typography>
+            <Typography>Output Max: {controller.output.max}</Typography>
+            <Typography>Course Diff: {calculateCourseDiff(gps.course, boatData.settings.controller.refCourse)}</Typography>
+          </CardContent></Card>
+        </Grid>
+      </Grid>
+      
+      <Card sx={{ mt: 3, p: 2 }}>
+        <Typography variant="h6">Boat Data Graph</Typography>
+        <Line data={data} options={chartOptions} />
+      </Card>
+      
+      <Card sx={{ mt: 3, p: 2 }}>
+        <Typography variant="h6">Rudder Voltage Graph</Typography>
+        <Line data={rudderData} options={chartOptions} />
+      </Card>
+    </Container>
   );
 };
 
