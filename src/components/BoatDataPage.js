@@ -11,7 +11,8 @@ const BoatDataPage = () => {
     gpsCourse: [],
     controllerRefCourse: [],
     courseDiff: [],
-    labels: []
+    labels: [],
+    timestamps: []
   });
 
   useEffect(() => {
@@ -25,16 +26,28 @@ const BoatDataPage = () => {
     if (boatData && boatData.data) {
       const { gps, controller } = boatData.data;
       const courseDiff = calculateCourseDiff(gps.course, boatData.settings.controller.refCourse);
+      const now = new Date().getTime();
 
       const newHistoricalData = {
         gpsCourse: [...historicalData.gpsCourse, gps.course],
         controllerRefCourse: [...historicalData.controllerRefCourse, boatData.settings.controller.refCourse],
         courseDiff: [...historicalData.courseDiff, courseDiff],
-        labels: [...historicalData.labels, new Date().toLocaleTimeString()]
+        labels: [...historicalData.labels, new Date().toLocaleTimeString()],
+        timestamps: [...historicalData.timestamps, now]
       };
 
-      setHistoricalData(newHistoricalData);
-      localStorage.setItem('historicalData', JSON.stringify(newHistoricalData));
+      // Filter data to include only the last 30 seconds
+      const timeFilter = now - 30 * 1000;
+      const filteredHistoricalData = {
+        gpsCourse: newHistoricalData.gpsCourse.filter((_, index) => newHistoricalData.timestamps[index] >= timeFilter),
+        controllerRefCourse: newHistoricalData.controllerRefCourse.filter((_, index) => newHistoricalData.timestamps[index] >= timeFilter),
+        courseDiff: newHistoricalData.courseDiff.filter((_, index) => newHistoricalData.timestamps[index] >= timeFilter),
+        labels: newHistoricalData.labels.filter((_, index) => newHistoricalData.timestamps[index] >= timeFilter),
+        timestamps: newHistoricalData.timestamps.filter(timestamp => timestamp >= timeFilter)
+      };
+
+      setHistoricalData(filteredHistoricalData);
+      localStorage.setItem('historicalData', JSON.stringify(filteredHistoricalData));
     }
   }, [boatData]);
 
@@ -90,6 +103,7 @@ const BoatDataPage = () => {
 
   const options = {
     responsive: true,
+    animation: false,
     plugins: {
       legend: {
         position: 'top',
