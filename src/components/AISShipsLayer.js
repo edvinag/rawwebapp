@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { Marker, Popup, LayerGroup, LayersControl } from 'react-leaflet';
 import L from 'leaflet';
-import { useApi } from '../contexts/ApiContext'; // Import the API context
+import { useApi } from '../contexts/SettingsContext'; // Import the API context
 
 const { Overlay } = LayersControl;
 
 const AISShipsLayer = () => {
-  const { apiKey } = useApi(); // Access apiKey from ApiContext
+  const { apiKey } = useApi(); // Access apiKey from SettingsContext
   const [aisData, setAisData] = useState([]);
 
   useEffect(() => {

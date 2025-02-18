@@ -3,7 +3,7 @@ import React, { useContext } from 'react';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 import { Room, AddLocation } from '@mui/icons-material';
-import { useApi } from '../contexts/ApiContext';
+import { useApi } from '../contexts/SettingsContext';
 import { DataContext } from '../contexts/DataContext';
 
 const TargetPopup = ({ markerPosition, closePopup }) => {

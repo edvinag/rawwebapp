@@ -1,7 +1,8 @@
-// RoutePolyline.js
+// src/components/RoutePolyline.js
 import React, { useRef, useEffect } from 'react';
 import { Polyline, LayersControl, Marker, FeatureGroup, useMap } from 'react-leaflet';
 import { useDataContext } from '../contexts/DataContext';
+import { useApi } from '../contexts/SettingsContext'; // Import service URL context
 import * as L from 'leaflet';
 
 const { Overlay } = LayersControl;
@@ -15,6 +16,7 @@ const createCircleIcon = () => L.divIcon({
 
 const RoutePolyline = () => {
   const { routeData, setRouteFetchPaused, pushRouteData } = useDataContext();
+  const { serviceUrl } = useApi(); // Get the service URL from context
   const polylineRef = useRef();
   const markerRefs = useRef([]);
   const coordinates = routeData?.geometry?.coordinates.map(coord => [coord[1], coord[0]]) || [];
@@ -42,8 +44,13 @@ const RoutePolyline = () => {
   };
 
   const handleMarkerDblClick = async (index) => {
+    if (!serviceUrl) {
+      console.error("Service URL is not set.");
+      return;
+    }
+
     try {
-      const response = await fetch(`http://localhost:5000/route?goalIndex=${index}`, {
+      const response = await fetch(`${serviceUrl}/route?goalIndex=${index}`, {
         method: 'GET',
       });
       if (response.ok) {
@@ -79,8 +86,13 @@ const RoutePolyline = () => {
     if (draggingMarkerIndex.current === null) return;
 
     // Remove map event listeners
-    map.off('mousemove', handleMarkerMouseMove);
-    map.off('mouseup', handleMarkerMouseUp);
+    map.off('mousemove');
+    map.off('mouseup');
+
+    if (!serviceUrl) {
+      console.error("Service URL is not set.");
+      return;
+    }
 
     if (polylineRef.current) {
       const geoJson = polylineRef.current.toGeoJSON();
