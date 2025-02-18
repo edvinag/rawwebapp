@@ -11,6 +11,8 @@ const BoatDataPage = () => {
     gpsCourse: [],
     controllerRefCourse: [],
     courseDiff: [],
+    rudderVoltage: [],
+    rudderFilteredVoltage: [],
     labels: [],
     timestamps: []
   });
@@ -24,7 +26,7 @@ const BoatDataPage = () => {
 
   useEffect(() => {
     if (boatData && boatData.data) {
-      const { gps, controller } = boatData.data;
+      const { gps, rudder, controller } = boatData.data;
       const courseDiff = calculateCourseDiff(gps.course, boatData.settings.controller.refCourse);
       const now = new Date().getTime();
 
@@ -32,6 +34,8 @@ const BoatDataPage = () => {
         gpsCourse: [...historicalData.gpsCourse, gps.course],
         controllerRefCourse: [...historicalData.controllerRefCourse, boatData.settings.controller.refCourse],
         courseDiff: [...historicalData.courseDiff, courseDiff],
+        rudderVoltage: [...historicalData.rudderVoltage, rudder.voltage],
+        rudderFilteredVoltage: [...historicalData.rudderFilteredVoltage, rudder.filteredVoltage],
         labels: [...historicalData.labels, new Date().toLocaleTimeString()],
         timestamps: [...historicalData.timestamps, now]
       };
@@ -42,6 +46,8 @@ const BoatDataPage = () => {
         gpsCourse: newHistoricalData.gpsCourse.filter((_, index) => newHistoricalData.timestamps[index] >= timeFilter),
         controllerRefCourse: newHistoricalData.controllerRefCourse.filter((_, index) => newHistoricalData.timestamps[index] >= timeFilter),
         courseDiff: newHistoricalData.courseDiff.filter((_, index) => newHistoricalData.timestamps[index] >= timeFilter),
+        rudderVoltage: newHistoricalData.rudderVoltage.filter((_, index) => newHistoricalData.timestamps[index] >= timeFilter),
+        rudderFilteredVoltage: newHistoricalData.rudderFilteredVoltage.filter((_, index) => newHistoricalData.timestamps[index] >= timeFilter),
         labels: newHistoricalData.labels.filter((_, index) => newHistoricalData.timestamps[index] >= timeFilter),
         timestamps: newHistoricalData.timestamps.filter(timestamp => timestamp >= timeFilter)
       };
@@ -101,6 +107,26 @@ const BoatDataPage = () => {
     ],
   };
 
+  const rudderData = {
+    labels: historicalData.labels,
+    datasets: [
+      {
+        label: 'Rudder Voltage',
+        data: historicalData.rudderVoltage,
+        borderColor: 'rgba(54, 162, 235, 1)',
+        backgroundColor: 'rgba(54, 162, 235, 0.2)',
+        fill: false,
+      },
+      {
+        label: 'Rudder Filtered Voltage',
+        data: historicalData.rudderFilteredVoltage,
+        borderColor: 'rgba(255, 206, 86, 1)',
+        backgroundColor: 'rgba(255, 206, 86, 0.2)',
+        fill: false,
+      },
+    ],
+  };
+
   const options = {
     responsive: true,
     animation: false,
@@ -111,6 +137,26 @@ const BoatDataPage = () => {
       title: {
         display: true,
         text: 'Boat Data Degrees',
+      },
+    },
+    scales: {
+      x: {
+        type: 'category',
+        position: 'bottom',
+      },
+    },
+  };
+
+  const rudderOptions = {
+    responsive: true,
+    animation: false,
+    plugins: {
+      legend: {
+        position: 'top',
+      },
+      title: {
+        display: true,
+        text: 'Rudder Voltage',
       },
     },
     scales: {
@@ -143,6 +189,9 @@ const BoatDataPage = () => {
 
       <h2>Graph</h2>
       <Line data={data} options={options} />
+
+      <h2>Rudder Voltage Graph</h2>
+      <Line data={rudderData} options={rudderOptions} />
     </div>
   );
 };
