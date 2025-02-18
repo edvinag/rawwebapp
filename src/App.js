@@ -8,6 +8,7 @@ import MapComponent from './components/MapComponent';
 import SettingsDrawer from './components/SettingsDrawer';
 import { DataProvider } from './contexts/DataContext';
 import { ApiProvider } from './contexts/SettingsContext';
+import BoatDataPage from './components/BoatDataPage'; // Import BoatDataPage component
 
 const App = () => {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
@@ -23,6 +24,7 @@ const App = () => {
   const menuItems = [
     { text: 'Home', route: '/' },
     { text: 'Map', route: '/map' },
+    { text: 'Boat Data', route: '/boat-data' }, // Add menu item for Boat Data
   ];
 
   return (
@@ -57,6 +59,7 @@ const App = () => {
               <Routes>
                 <Route path="/" element={<Home />} />
                 <Route path="/map" element={<MapComponent showTargetMarker={showTargetMarker} />} />
+                <Route path="/boat-data" element={<BoatDataPage />} /> {/* Add route for BoatDataPage */}
               </Routes>
             </Box>
           </Box>
