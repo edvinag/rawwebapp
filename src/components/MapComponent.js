@@ -20,26 +20,18 @@ const MapComponent = ({ showTargetMarker }) => {
   const MapEventsHandler = () => {
     const map = useMap();
     useEffect(() => {
-      console.log('Map loaded:', map);
       mapRef.current = map;
     }, [map]);
     return null;
   };
 
   useEffect(() => {
-    console.log('Follow state:', follow);
-    console.log('Boat data path length:', boatData.path.length);
-
     if (follow && boatData.path.length > 0) {
       const latestPosition = boatData.path[boatData.path.length - 1];
-      console.log('Latest position:', latestPosition);
+      
       const map = mapRef.current;
       if (map) {
-        console.log('Map instance:', map);
-        console.log('Flying to latest position...');
         map.setView(latestPosition, map.getZoom());
-      } else {
-        console.log('Map instance is not set yet.');
       }
     }
   }, [boatData, follow]);
