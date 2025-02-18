@@ -17,6 +17,15 @@ const BoatDataPage = () => {
     timestamps: []
   });
 
+  const calculateCourseDiff = (course, refCourse) => {
+    let diff = course - refCourse;
+    diff = (diff + 360) % 360;
+    if (diff > 180) {
+      diff = 360 - diff;
+    }
+    return diff;
+  };
+
   useEffect(() => {
     const storedData = localStorage.getItem('historicalData');
     if (storedData) {
@@ -70,15 +79,6 @@ const BoatDataPage = () => {
   }
 
   const { gps, rudder, controller } = boatData.data;
-
-  const calculateCourseDiff = (course, refCourse) => {
-    let diff = course - refCourse;
-    diff = (diff + 360) % 360;
-    if (diff > 180) {
-      diff = 360 - diff;
-    }
-    return diff;
-  };
 
   const data = {
     labels: historicalData.labels,
@@ -179,6 +179,7 @@ const BoatDataPage = () => {
       <p>Position: {rudder.position}</p>
       <p>Voltage: {rudder.voltage}</p>
       <p>Filtered Voltage: {rudder.filteredVoltage}</p>
+      <p>Runner movement: {rudder.larboard ? 'larboard' : rudder.starboard ? 'starboard' : 'none'}</p>
 
       <h2>Controller</h2>
       <p>Output Min: {controller.output.min}</p>
