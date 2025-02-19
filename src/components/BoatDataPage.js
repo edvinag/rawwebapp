@@ -14,6 +14,8 @@ const BoatDataPage = () => {
     courseDiff: [],
     rudderVoltage: [],
     rudderFilteredVoltage: [],
+    rudderPosition: [], // Add rudder position to historical data
+    rudderRef: [], // Add rudder ref to historical data
     labels: [],
     timestamps: []
   });
@@ -43,6 +45,8 @@ const BoatDataPage = () => {
         courseDiff: [...historicalData.courseDiff, courseDiff],
         rudderVoltage: [...historicalData.rudderVoltage, rudder.voltage],
         rudderFilteredVoltage: [...historicalData.rudderFilteredVoltage, rudder.filteredVoltage],
+        rudderPosition: [...historicalData.rudderPosition, rudder.position], // Add rudder position to new historical data
+        rudderRef: [...historicalData.rudderRef, boatData.settings.rudder.ref], // Add rudder ref to new historical data
         labels: [...historicalData.labels, new Date().toLocaleTimeString()],
         timestamps: [...historicalData.timestamps, now]
       };
@@ -54,6 +58,8 @@ const BoatDataPage = () => {
         courseDiff: newHistoricalData.courseDiff.filter((_, i) => newHistoricalData.timestamps[i] >= timeFilter),
         rudderVoltage: newHistoricalData.rudderVoltage.filter((_, i) => newHistoricalData.timestamps[i] >= timeFilter),
         rudderFilteredVoltage: newHistoricalData.rudderFilteredVoltage.filter((_, i) => newHistoricalData.timestamps[i] >= timeFilter),
+        rudderPosition: newHistoricalData.rudderPosition.filter((_, i) => newHistoricalData.timestamps[i] >= timeFilter), // Filter rudder position
+        rudderRef: newHistoricalData.rudderRef.filter((_, i) => newHistoricalData.timestamps[i] >= timeFilter), // Filter rudder ref
         labels: newHistoricalData.labels.filter((_, i) => newHistoricalData.timestamps[i] >= timeFilter),
         timestamps: newHistoricalData.timestamps.filter((t) => t >= timeFilter)
       });
@@ -80,6 +86,14 @@ const BoatDataPage = () => {
     datasets: [
       { label: 'Rudder Voltage', data: historicalData.rudderVoltage, borderColor: '#36a2eb' },
       { label: 'Rudder Filtered Voltage', data: historicalData.rudderFilteredVoltage, borderColor: '#ffce56' },
+    ],
+  };
+
+  const rudderPositionData = {
+    labels: historicalData.labels,
+    datasets: [
+      { label: 'Rudder Position', data: historicalData.rudderPosition, borderColor: '#ff6384' }, // Add rudder position dataset
+      { label: 'Rudder Ref', data: historicalData.rudderRef, borderColor: '#cc65fe' }, // Add rudder ref dataset
     ],
   };
 
@@ -112,8 +126,13 @@ const BoatDataPage = () => {
             <Typography variant="h6">Controller</Typography>
             <Typography>Output Min: {controller.output.min}</Typography>
             <Typography>Output Max: {controller.output.max}</Typography>
-            <Typography>Ref Course: {controller.error}</Typography>
-            <Typography>Course Diff: {calculateCourseDiff(gps.course, boatData.settings.controller.refCourse)}</Typography>
+            <Typography>Error: {controller.error}</Typography>
+          </CardContent></Card>
+        </Grid>
+        <Grid item xs={12} md={4}>
+          <Card><CardContent>
+            <Typography variant="h6">Route</Typography>
+            <Typography>Goal Index: {boatData.settings.route.goalIndex}</Typography>
           </CardContent></Card>
         </Grid>
       </Grid>
@@ -126,6 +145,11 @@ const BoatDataPage = () => {
       <Card sx={{ mt: 3, p: 2 }}>
         <Typography variant="h6">Rudder Voltage Graph</Typography>
         <Line data={rudderData} options={chartOptions} />
+      </Card>
+
+      <Card sx={{ mt: 3, p: 2 }}>
+        <Typography variant="h6">Rudder Position Graph</Typography>
+        <Line data={rudderPositionData} options={chartOptions} />
       </Card>
     </Container>
   );
