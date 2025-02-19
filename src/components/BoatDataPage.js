@@ -102,8 +102,9 @@ const BoatDataPage = () => {
           <Card><CardContent>
             <Typography variant="h6">Rudder</Typography>
             <Typography>Position: {rudder.position}</Typography>
+            <Typography>Ref: {boatData.settings.rudder.ref}</Typography>
             <Typography>Voltage: {rudder.voltage}</Typography>
-            <Typography>Filtered Voltage: {rudder.filteredVoltage}</Typography>
+            <Typography>Filtered Voltage: {rudder.filteredVoltage}</Typography>  
           </CardContent></Card>
         </Grid>
         <Grid item xs={12} md={4}>
@@ -111,6 +112,7 @@ const BoatDataPage = () => {
             <Typography variant="h6">Controller</Typography>
             <Typography>Output Min: {controller.output.min}</Typography>
             <Typography>Output Max: {controller.output.max}</Typography>
+            <Typography>Ref Course: {controller.error}</Typography>
             <Typography>Course Diff: {calculateCourseDiff(gps.course, boatData.settings.controller.refCourse)}</Typography>
           </CardContent></Card>
         </Grid>
