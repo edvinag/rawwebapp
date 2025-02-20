@@ -124,8 +124,8 @@ const BoatDataPage = () => {
         <Grid item xs={12} md={4}>
           <Card><CardContent>
             <Typography variant="h6">Controller</Typography>
-            <Typography>Output Min: {controller.output.min}</Typography>
-            <Typography>Output Max: {controller.output.max}</Typography>
+            <Typography>Output Min: {boatData.settings.controller.output.min}</Typography>
+            <Typography>Output Max: {boatData.settings.controller.output.max}</Typography>
             <Typography>Error: {controller.error}</Typography>
           </CardContent></Card>
         </Grid>
