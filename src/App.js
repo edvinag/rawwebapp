@@ -6,12 +6,13 @@ import { HashRouter as Router, Routes, Route } from 'react-router-dom';
 import Home from './components/Home';
 import MapComponent from './components/MapComponent';
 import SettingsDrawer from './components/SettingsDrawer';
-import { DataProvider } from './contexts/DataContext';
+import { DataProvider, useDataContext } from './contexts/DataContext';
 import { ApiProvider } from './contexts/SettingsContext';
 import BoatDataPage from './components/BoatDataPage'; // Import BoatDataPage component
 
-const App = () => {
+const AppContent = () => {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const { follow, setFollow } = useDataContext(); // Access follow state from DataContext
 
   const toggleDrawer = (open) => (event) => {
     if (event.type === 'keydown' && (event.key === 'Tab' || event.key === 'Shift')) {
@@ -20,42 +21,62 @@ const App = () => {
     setIsDrawerOpen(open);
   };
 
+  const handleFollowChange = (event) => {
+    setFollow(event.target.checked);
+  };
+
   const menuItems = [
-    { text: 'Home', route: '/' },
-    { text: 'Map', route: '/map' },
+    { text: 'Map', route: '/' },
     { text: 'Boat Data', route: '/boat-data' }, // Add menu item for Boat Data
   ];
 
   return (
-    <ApiProvider>
-      <DataProvider>
-        <Router>
-          <Box sx={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
-            <AppBar position="static">
-              <Toolbar>
-                <IconButton edge="start" color="inherit" aria-label="menu" onClick={toggleDrawer(true)}>
-                  <MenuIcon />
-                </IconButton>
-                <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-                  RawCat
-                </Typography>
-              </Toolbar>
-            </AppBar>
+    <Router>
+      <Box sx={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
+        <AppBar position="static">
+          <Toolbar>
+            <IconButton edge="start" color="inherit" aria-label="menu" onClick={toggleDrawer(true)}>
+              <MenuIcon />
+            </IconButton>
+            <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+              RawCat
+            </Typography>
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={follow}
+                  onChange={handleFollowChange}
+                  color="default"
+                />
+              }
+              label="Follow the boat"
+            />
+          </Toolbar>
+        </AppBar>
 
-            <SettingsDrawer isDrawerOpen={isDrawerOpen} toggleDrawer={toggleDrawer} menuItems={menuItems} />
+        <SettingsDrawer 
+          isDrawerOpen={isDrawerOpen} 
+          toggleDrawer={toggleDrawer} 
+          menuItems={menuItems} 
+        />
 
-            <Box sx={{ flex: 1 }}>
-              <Routes>
-                <Route path="/" element={<Home />} />
-                <Route path="/map" element={<MapComponent />} />
-                <Route path="/boat-data" element={<BoatDataPage />} /> {/* Add route for BoatDataPage */}
-              </Routes>
-            </Box>
-          </Box>
-        </Router>
-      </DataProvider>
-    </ApiProvider>
+        <Box sx={{ flex: 1 }}>
+          <Routes>
+            <Route path="/" element={<MapComponent />} />
+            <Route path="/boat-data" element={<BoatDataPage />} /> {/* Add route for BoatDataPage */}
+          </Routes>
+        </Box>
+      </Box>
+    </Router>
   );
 };
+
+const App = () => (
+  <ApiProvider>
+    <DataProvider>
+      <AppContent />
+    </DataProvider>
+  </ApiProvider>
+);
 
 export default App;
