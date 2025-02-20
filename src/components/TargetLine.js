@@ -18,19 +18,9 @@ const TargetLine = () => {
     boatData.data.gps.location.longitude,
   ];
 
-  // Get the goalIndex as the next target point
-  const goalIndex = boatData.settings.route.goalIndex;
-  const routeCoordinates = routeData.geometry.coordinates;
-
-  // Check that goalIndex is within bounds
-  if (goalIndex >= routeCoordinates.length) {
-    console.error("Goal index is out of route coordinates bounds.");
-    return null;
-  }
-
   const targetPosition = [
-    routeCoordinates[goalIndex][1], // latitude
-    routeCoordinates[goalIndex][0], // longitude
+    boatData.settings.controller.reflocation.latitude, // latitude
+    boatData.settings.controller.reflocation.longitude, // longitude
   ];
 
   return (

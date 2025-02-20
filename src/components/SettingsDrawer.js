@@ -1,4 +1,3 @@
-// src/components/SettingsDrawer.js
 import React, { useState } from 'react';
 import { Drawer, List, ListItem, ListItemText, Box, TextField, Button } from '@mui/material';
 import { Link } from 'react-router-dom';
@@ -7,7 +6,6 @@ import { useDataContext } from '../contexts/DataContext'; // Import DataContext
 
 const SettingsDrawer = ({ isDrawerOpen, toggleDrawer, menuItems }) => {
   const { apiKey, saveApiKey, serviceUrl, saveServiceUrl } = useApi(); // Access API and Service URL context
-  const { follow, setFollow } = useDataContext(); // Access follow state from DataContext
 
   const [inputApiKey, setInputApiKey] = useState(apiKey || '');
   const [inputServiceUrl, setInputServiceUrl] = useState(serviceUrl || 'http://localhost:5000');
@@ -25,9 +23,6 @@ const SettingsDrawer = ({ isDrawerOpen, toggleDrawer, menuItems }) => {
     saveServiceUrl(inputServiceUrl);
     alert('Service URL saved successfully!');
   };
-
-  // Handler for Follow checkbox
-  const handleFollowChange = (event) => setFollow(event.target.checked);
 
   return (
     <Drawer anchor="left" open={isDrawerOpen} onClose={toggleDrawer(false)}>
@@ -74,18 +69,6 @@ const SettingsDrawer = ({ isDrawerOpen, toggleDrawer, menuItems }) => {
           <Button variant="contained" color="secondary" onClick={saveServiceUrlToContext} fullWidth>
             Save Service URL
           </Button>
-
-          {/* Follow Checkbox */}
-          <Box sx={{ mt: 2 }}>
-            <label>
-              <input
-                type="checkbox"
-                checked={follow}
-                onChange={handleFollowChange}
-              />
-              Follow
-            </label>
-          </Box>
         </Box>
       </Box>
     </Drawer>
