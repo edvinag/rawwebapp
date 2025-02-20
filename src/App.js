@@ -12,7 +12,6 @@ import BoatDataPage from './components/BoatDataPage'; // Import BoatDataPage com
 
 const App = () => {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-  const [showTargetMarker, setShowTargetMarker] = useState(true); // New state for TargetMarker
 
   const toggleDrawer = (open) => (event) => {
     if (event.type === 'keydown' && (event.key === 'Tab' || event.key === 'Shift')) {
@@ -40,16 +39,6 @@ const App = () => {
                 <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
                   RawCat
                 </Typography>
-                <FormControlLabel
-                  control={
-                    <Checkbox
-                      checked={showTargetMarker}
-                      onChange={() => setShowTargetMarker(!showTargetMarker)}
-                      color="default"
-                    />
-                  }
-                  label="Show Target Marker"
-                />
               </Toolbar>
             </AppBar>
 
@@ -58,7 +47,7 @@ const App = () => {
             <Box sx={{ flex: 1 }}>
               <Routes>
                 <Route path="/" element={<Home />} />
-                <Route path="/map" element={<MapComponent showTargetMarker={showTargetMarker} />} />
+                <Route path="/map" element={<MapComponent />} />
                 <Route path="/boat-data" element={<BoatDataPage />} /> {/* Add route for BoatDataPage */}
               </Routes>
             </Box>

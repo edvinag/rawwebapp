@@ -13,7 +13,7 @@ import { useDataContext } from '../contexts/DataContext'; // Import DataContext
 
 const initialPosition = [57.573517, 11.9269];
 
-const MapComponent = ({ showTargetMarker }) => {
+const MapComponent = () => {
   const { boatData, follow } = useDataContext(); // Access boatData and follow state from DataContext
   const mapRef = useRef(null);
 
@@ -50,7 +50,7 @@ const MapComponent = ({ showTargetMarker }) => {
       <LayersControl position="topright">
         <TileLayers />
         <AISShipsLayer />
-        {showTargetMarker && <TargetMarker />} {/* Conditionally render TargetMarker */}
+        <TargetMarker /> {/* Conditionally render TargetMarker */}
         <RoutePolyline />
         <BoatPath />
         <TargetLine />
