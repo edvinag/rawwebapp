@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useDataContext } from '../contexts/DataContext';
 import { Line } from 'react-chartjs-2';
 import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend } from 'chart.js';
-import { Container, Typography, Card, CardContent, Grid, CircularProgress } from '@mui/material';
+import { Container, Typography, Card, CardContent, Grid, CircularProgress, FormControlLabel, Checkbox } from '@mui/material';
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
 
@@ -14,11 +14,24 @@ const BoatDataPage = () => {
     courseDiff: [],
     rudderVoltage: [],
     rudderFilteredVoltage: [],
-    rudderPosition: [], // Add rudder position to historical data
-    rudderRef: [], // Add rudder ref to historical data
+    rudderPosition: [],
+    rudderRef: [],
     labels: [],
     timestamps: []
   });
+
+  const [showGraphs, setShowGraphs] = useState({
+    boatData: true,
+    rudderVoltage: true,
+    rudderPosition: true
+  });
+
+  const handleCheckboxChange = (event) => {
+    setShowGraphs({
+      ...showGraphs,
+      [event.target.name]: event.target.checked
+    });
+  };
 
   const calculateCourseDiff = (course, refCourse) => {
     let diff = course - refCourse;
@@ -45,8 +58,8 @@ const BoatDataPage = () => {
         courseDiff: [...historicalData.courseDiff, courseDiff],
         rudderVoltage: [...historicalData.rudderVoltage, rudder.voltage],
         rudderFilteredVoltage: [...historicalData.rudderFilteredVoltage, rudder.filteredVoltage],
-        rudderPosition: [...historicalData.rudderPosition, rudder.position], // Add rudder position to new historical data
-        rudderRef: [...historicalData.rudderRef, boatData.settings.rudder.ref], // Add rudder ref to new historical data
+        rudderPosition: [...historicalData.rudderPosition, rudder.position],
+        rudderRef: [...historicalData.rudderRef, boatData.settings.rudder.ref],
         labels: [...historicalData.labels, new Date().toLocaleTimeString()],
         timestamps: [...historicalData.timestamps, now]
       };
@@ -58,8 +71,8 @@ const BoatDataPage = () => {
         courseDiff: newHistoricalData.courseDiff.filter((_, i) => newHistoricalData.timestamps[i] >= timeFilter),
         rudderVoltage: newHistoricalData.rudderVoltage.filter((_, i) => newHistoricalData.timestamps[i] >= timeFilter),
         rudderFilteredVoltage: newHistoricalData.rudderFilteredVoltage.filter((_, i) => newHistoricalData.timestamps[i] >= timeFilter),
-        rudderPosition: newHistoricalData.rudderPosition.filter((_, i) => newHistoricalData.timestamps[i] >= timeFilter), // Filter rudder position
-        rudderRef: newHistoricalData.rudderRef.filter((_, i) => newHistoricalData.timestamps[i] >= timeFilter), // Filter rudder ref
+        rudderPosition: newHistoricalData.rudderPosition.filter((_, i) => newHistoricalData.timestamps[i] >= timeFilter),
+        rudderRef: newHistoricalData.rudderRef.filter((_, i) => newHistoricalData.timestamps[i] >= timeFilter),
         labels: newHistoricalData.labels.filter((_, i) => newHistoricalData.timestamps[i] >= timeFilter),
         timestamps: newHistoricalData.timestamps.filter((t) => t >= timeFilter)
       });
@@ -92,8 +105,8 @@ const BoatDataPage = () => {
   const rudderPositionData = {
     labels: historicalData.labels,
     datasets: [
-      { label: 'Rudder Position', data: historicalData.rudderPosition, borderColor: '#ff6384' }, // Add rudder position dataset
-      { label: 'Rudder Ref', data: historicalData.rudderRef, borderColor: '#cc65fe' }, // Add rudder ref dataset
+      { label: 'Rudder Position', data: historicalData.rudderPosition, borderColor: '#ff6384' },
+      { label: 'Rudder Ref', data: historicalData.rudderRef, borderColor: '#cc65fe' },
     ],
   };
 
@@ -137,20 +150,39 @@ const BoatDataPage = () => {
         </Grid>
       </Grid>
       
-      <Card sx={{ mt: 3, p: 2 }}>
-        <Typography variant="h6">Boat Data Graph</Typography>
-        <Line data={data} options={chartOptions} />
-      </Card>
-      
-      <Card sx={{ mt: 3, p: 2 }}>
-        <Typography variant="h6">Rudder Voltage Graph</Typography>
-        <Line data={rudderData} options={chartOptions} />
-      </Card>
+      <FormControlLabel
+        control={<Checkbox checked={showGraphs.boatData} onChange={handleCheckboxChange} name="boatData" />}
+        label="Show Boat Data Graph"
+      />
+      <FormControlLabel
+        control={<Checkbox checked={showGraphs.rudderVoltage} onChange={handleCheckboxChange} name="rudderVoltage" />}
+        label="Show Rudder Voltage Graph"
+      />
+      <FormControlLabel
+        control={<Checkbox checked={showGraphs.rudderPosition} onChange={handleCheckboxChange} name="rudderPosition" />}
+        label="Show Rudder Position Graph"
+      />
 
-      <Card sx={{ mt: 3, p: 2 }}>
-        <Typography variant="h6">Rudder Position Graph</Typography>
-        <Line data={rudderPositionData} options={chartOptions} />
-      </Card>
+      {showGraphs.boatData && (
+        <Card sx={{ mt: 3, p: 2 }}>
+          <Typography variant="h6">Boat Data Graph</Typography>
+          <Line data={data} options={chartOptions} />
+        </Card>
+      )}
+      
+      {showGraphs.rudderVoltage && (
+        <Card sx={{ mt: 3, p: 2 }}>
+          <Typography variant="h6">Rudder Voltage Graph</Typography>
+          <Line data={rudderData} options={chartOptions} />
+        </Card>
+      )}
+
+      {showGraphs.rudderPosition && (
+        <Card sx={{ mt: 3, p: 2 }}>
+          <Typography variant="h6">Rudder Position Graph</Typography>
+          <Line data={rudderPositionData} options={chartOptions} />
+        </Card>
+      )}
     </Container>
   );
 };
