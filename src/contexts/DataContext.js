@@ -10,7 +10,7 @@ export const DataProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [fetchPaused, setFetchPaused] = useState(false);
-  const [follow, setFollow] = useState(false); // Add follow state
+  const [follow, setFollow] = useState(true); // Add follow state
   const [isFetchingBoatData, setIsFetchingBoatData] = useState(false); // Track boat data fetch status
   const [isFetchingRouteData, setIsFetchingRouteData] = useState(false); // Track route data fetch status
 
