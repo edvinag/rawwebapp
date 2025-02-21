@@ -1,4 +1,3 @@
-// src/contexts/DataContext.js
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useApi } from './SettingsContext'; // Import service URL context
 
@@ -12,10 +11,13 @@ export const DataProvider = ({ children }) => {
   const [error, setError] = useState(null);
   const [fetchPaused, setFetchPaused] = useState(false);
   const [follow, setFollow] = useState(false); // Add follow state
+  const [isFetchingBoatData, setIsFetchingBoatData] = useState(false); // Track boat data fetch status
+  const [isFetchingRouteData, setIsFetchingRouteData] = useState(false); // Track route data fetch status
 
   useEffect(() => {
     const fetchBoatData = async () => {
-      if (fetchPaused || !serviceUrl) return;
+      if (fetchPaused || !serviceUrl || isFetchingBoatData) return;
+      setIsFetchingBoatData(true);
       try {
         const response = await fetch(`${serviceUrl}/all`);
         if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
@@ -36,16 +38,18 @@ export const DataProvider = ({ children }) => {
         setError(err.message);
       } finally {
         setLoading(false);
+        setIsFetchingBoatData(false);
       }
     };
 
-    const boatDataInterval = setInterval(fetchBoatData, 500);
+    const boatDataInterval = setInterval(fetchBoatData, 100);
     return () => clearInterval(boatDataInterval);
-  }, [fetchPaused, serviceUrl]);
+  }, [fetchPaused, serviceUrl, isFetchingBoatData]);
 
   useEffect(() => {
     const fetchRouteData = async () => {
-      if (fetchPaused || !serviceUrl) return;
+      if (fetchPaused || !serviceUrl || isFetchingRouteData) return;
+      setIsFetchingRouteData(true);
       try {
         const response = await fetch(`${serviceUrl}/route`);
         if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
@@ -53,12 +57,14 @@ export const DataProvider = ({ children }) => {
         setRouteData(routeResult);
       } catch (error) {
         console.error("Error fetching route data:", error);
+      } finally {
+        setIsFetchingRouteData(false);
       }
     };
 
     const routeDataInterval = setInterval(fetchRouteData, 5000);
     return () => clearInterval(routeDataInterval);
-  }, [fetchPaused, serviceUrl]);
+  }, [fetchPaused, serviceUrl, isFetchingRouteData]);
 
   const updateRouteData = (newRouteData) => setRouteData(newRouteData);
   const setRouteFetchPaused = (paused) => setFetchPaused(paused);
