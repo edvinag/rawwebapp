@@ -42,7 +42,7 @@ export const DataProvider = ({ children }) => {
       }
     };
 
-    const boatDataInterval = setInterval(fetchBoatData, 100);
+    const boatDataInterval = setInterval(fetchBoatData, 500);
     return () => clearInterval(boatDataInterval);
   }, [fetchPaused, serviceUrl, isFetchingBoatData]);
 
