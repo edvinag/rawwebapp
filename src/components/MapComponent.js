@@ -51,9 +51,9 @@ const MapComponent = () => {
         <TileLayers />
         <AISShipsLayer />
         <TargetMarker /> {/* Conditionally render TargetMarker */}
+        <TargetLine />
         <RoutePolyline />
         <BoatPath />
-        <TargetLine />
       </LayersControl>
       <MyBoatMarker />
       <MapEventsHandler />

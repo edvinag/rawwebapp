@@ -1,6 +1,6 @@
 // BoatRouteLine.js
 import React from 'react';
-import { Polyline, LayersControl, FeatureGroup } from 'react-leaflet';
+import { Polyline, LayersControl, FeatureGroup, Circle, CircleMarker } from 'react-leaflet';
 import { useDataContext } from '../contexts/DataContext';
 
 const { Overlay } = LayersControl;
@@ -18,6 +18,21 @@ const TargetLine = () => {
     boatData.data.gps.location.longitude,
   ];
 
+  // Get the goalIndex as the next target point
+  const goalIndex = boatData.settings.route.goalIndex;
+  const routeCoordinates = routeData.geometry.coordinates;
+
+  // Check that goalIndex is within bounds
+  if (goalIndex >= routeCoordinates.length) {
+    console.error("Goal index is out of route coordinates bounds.");
+    return null;
+  }
+
+  const targetRoutePosition = [
+    routeCoordinates[goalIndex][1], // latitude
+    routeCoordinates[goalIndex][0], // longitude
+  ];
+
   const targetPosition = [
     boatData.settings.controller.reflocation.latitude, // latitude
     boatData.settings.controller.reflocation.longitude, // longitude
@@ -31,8 +46,11 @@ const TargetLine = () => {
           positions={[boatPosition, targetPosition]}
           pathOptions={{
             color: 'green',
+            dashArray: '10, 10',
           }}>
         </Polyline>
+        <CircleMarker center={targetPosition} radius={3} color='black' fillOpacity={1} />
+        <CircleMarker center={targetRoutePosition} radius={10} color='darkblue' fillOpacity={1}/>
       </FeatureGroup>
     </Overlay>
   );
