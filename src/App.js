@@ -8,7 +8,8 @@ import MapComponent from './components/MapComponent';
 import SettingsDrawer from './components/SettingsDrawer';
 import { DataProvider, useDataContext } from './contexts/DataContext';
 import { ApiProvider } from './contexts/SettingsContext';
-import BoatDataPage from './components/BoatDataPage'; // Import BoatDataPage component
+import Stream from './components/Stream';
+// import BoatDataPage from './components/BoatDataPage'; // Import BoatDataPage component
 
 const AppContent = () => {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
@@ -27,7 +28,7 @@ const AppContent = () => {
 
   const menuItems = [
     { text: 'Map', route: '/' },
-    { text: 'Boat Data', route: '/boat-data' }, // Add menu item for Boat Data
+    { text: 'Stream', route: '/stream' }, // Add menu item for Boat Data
   ];
 
   return (
@@ -63,7 +64,7 @@ const AppContent = () => {
         <Box sx={{ flex: 1 }}>
           <Routes>
             <Route path="/" element={<MapComponent />} />
-            <Route path="/boat-data" element={<BoatDataPage />} /> {/* Add route for BoatDataPage */}
+            <Route path="/stream" element={<Stream />} /> Add route for BoatDataPage
           </Routes>
         </Box>
       </Box>
