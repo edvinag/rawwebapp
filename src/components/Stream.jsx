@@ -1,9 +1,9 @@
-import React, { useEffect, useRef, useContext } from "react";
+import React, { useContext, useRef } from "react";
 import { Chart, LinearScale, LineController, LineElement, PointElement, CategoryScale, Title, Tooltip, Legend } from "chart.js";
 import StreamingPlugin from "chartjs-plugin-streaming";
 import { Line } from "react-chartjs-2";
 import "chartjs-adapter-luxon";
-import { DataContext } from "../contexts/DataContext"; // Import DataContext
+import { DataContext } from "../contexts/DataContext";
 
 Chart.register(
   LineController,
@@ -18,9 +18,13 @@ Chart.register(
 );
 
 export default function Stream() {
-  const { boatData } = useContext(DataContext); // Use DataContext to get boatData
-  const dataset1Data = useRef([]);
-  const dataset2Data = useRef([]);
+  const { boatData } = useContext(DataContext);
+  const datasetsRef = useRef([[], []]);
+
+  const getNewDataPoint = () => {
+    const course = boatData?.data?.gps?.course;
+    return course ? { x: Date.now(), y: course } : null;
+  };
 
   return (
     <Line
@@ -32,7 +36,7 @@ export default function Stream() {
             borderColor: "rgb(255, 99, 132)",
             borderDash: [8, 4],
             fill: true,
-            data: dataset1Data.current
+            data: datasetsRef.current[0],
           },
           {
             label: "Dataset 2",
@@ -40,7 +44,7 @@ export default function Stream() {
             borderColor: "rgb(54, 162, 235)",
             cubicInterpolationMode: "monotone",
             fill: true,
-            data: dataset2Data.current
+            data: datasetsRef.current[1],
           }
         ]
       }}
@@ -50,27 +54,23 @@ export default function Stream() {
             type: "realtime",
             realtime: {
               delay: 500,
-              duration: 20000, // Keep 20 seconds of data
-              refresh: 200, // Refresh every second
+              duration: 20000,
+              refresh: 200,
               onRefresh: (chart) => {
-                console.log("onRefresh called");
+                const newDataPoint = getNewDataPoint();
+                if (!newDataPoint) return;
+
                 chart.data.datasets.forEach((dataset, index) => {
-                  const latestPath = boatData?.path?.[boatData.path.length - 1];
-                  console.log("course", boatData?.data?.gps?.course);
-                  if (!boatData?.data?.gps?.course) return;
-                  const newDataPoint = {
-                    x: Date.now(),
-                    y: boatData?.data?.gps?.course
-                  };
-                  dataset.data.push(newDataPoint);
+                  datasetsRef.current[index].push(newDataPoint);
                 });
-                chart.update('none'); // Force a full update without animations
+                
+                chart.update('none');
               }
             }
           },
           y: {
-            min: 0, // Set the minimum value for the y-axis
-            max: 360  // Set the maximum value for the y-axis
+            min: 0,
+            max: 360
           }
         }
       }}
