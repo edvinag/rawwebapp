@@ -1,9 +1,8 @@
-import React, { useContext, useRef } from "react";
+import React, { useRef } from "react";
 import { Chart, LinearScale, LineController, LineElement, PointElement, CategoryScale, Title, Tooltip, Legend } from "chart.js";
 import StreamingPlugin from "chartjs-plugin-streaming";
 import { Line } from "react-chartjs-2";
 import "chartjs-adapter-luxon";
-import { DataContext } from "../contexts/DataContext";
 
 Chart.register(
   LineController,
@@ -17,36 +16,21 @@ Chart.register(
   StreamingPlugin
 );
 
-export default function Stream() {
-  const { boatData } = useContext(DataContext);
-  const datasetsRef = useRef([[], []]);
-
-  const getNewDataPoint = () => {
-    const course = boatData?.data?.gps?.course;
-    return course ? { x: Date.now(), y: course } : null;
-  };
+export default function Stream({ dataSources }) {
+  const datasetsRef = useRef(dataSources.map(() => []));
 
   return (
     <Line
       data={{
-        datasets: [
-          {
-            label: "Dataset 1",
-            backgroundColor: "rgba(255, 99, 132, 0.5)",
-            borderColor: "rgb(255, 99, 132)",
-            borderDash: [8, 4],
-            fill: true,
-            data: datasetsRef.current[0],
-          },
-          {
-            label: "Dataset 2",
-            backgroundColor: "rgba(54, 162, 235, 0.5)",
-            borderColor: "rgb(54, 162, 235)",
-            cubicInterpolationMode: "monotone",
-            fill: true,
-            data: datasetsRef.current[1],
-          }
-        ]
+        datasets: dataSources.map((source, index) => ({
+          label: source.label,
+          backgroundColor: source.backgroundColor || "rgba(0, 0, 0, 0.1)",
+          borderColor: source.borderColor || "rgb(0, 0, 0)",
+          borderDash: source.borderDash || [],
+          cubicInterpolationMode: source.cubicInterpolationMode || "default",
+          fill: source.fill !== undefined ? source.fill : true,
+          data: datasetsRef.current[index],
+        }))
       }}
       options={{
         scales: {
@@ -57,13 +41,10 @@ export default function Stream() {
               duration: 20000,
               refresh: 200,
               onRefresh: (chart) => {
-                const newDataPoint = getNewDataPoint();
-                if (!newDataPoint) return;
-
-                chart.data.datasets.forEach((dataset, index) => {
-                  datasetsRef.current[index].push(newDataPoint);
+                dataSources.forEach((source, index) => {
+                  const newData = source.getDataPoint();
+                  if (newData) datasetsRef.current[index].push(newData);
                 });
-                
                 chart.update('none');
               }
             }

@@ -30,6 +30,37 @@ const AppContent = () => {
     { text: 'Map', route: '/' },
     { text: 'Stream', route: '/stream' }, // Add menu item for Boat Data
   ];
+  const { boatData } = useDataContext(DataProvider);
+
+    // Function to fetch the course data
+    const getCourseDataPoint = () => {
+      const course = boatData?.data?.gps?.course;
+      return course ? { x: Date.now(), y: course } : null;
+    };
+  
+    // Function to fetch the longitude data
+    const getLongitudeDataPoint = () => {
+      const longitude = boatData?.data?.gps?.location?.longitude;
+      return longitude ? { x: Date.now(), y: longitude } : null;
+    };
+  
+    // Define data sources dynamically
+    const dataSources = [
+      {
+        label: "Course",
+        backgroundColor: "rgba(255, 99, 132, 0.5)",
+        borderColor: "rgb(255, 99, 132)",
+        borderDash: [8, 4],
+        getDataPoint: getCourseDataPoint,
+      },
+      {
+        label: "Longitude",
+        backgroundColor: "rgba(54, 162, 235, 0.5)",
+        borderColor: "rgb(54, 162, 235)",
+        cubicInterpolationMode: "monotone",
+        getDataPoint: getLongitudeDataPoint,
+      }
+    ];
 
   return (
     <Router>
@@ -64,7 +95,7 @@ const AppContent = () => {
         <Box sx={{ flex: 1 }}>
           <Routes>
             <Route path="/" element={<MapComponent />} />
-            <Route path="/stream" element={<Stream />} /> Add route for BoatDataPage
+            <Route path="/stream" element={<Stream dataSources={dataSources} />} /> Add route for BoatDataPage
           </Routes>
         </Box>
       </Box>
