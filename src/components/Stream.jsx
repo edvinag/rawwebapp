@@ -1,15 +1,9 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useContext } from "react";
 import { Chart, LinearScale, LineController, LineElement, PointElement, CategoryScale, Title, Tooltip, Legend } from "chart.js";
 import StreamingPlugin from "chartjs-plugin-streaming";
 import { Line } from "react-chartjs-2";
 import "chartjs-adapter-luxon";
-
-// Polyfill for requestAnimationFrame
-if (!window.requestAnimationFrame) {
-  window.requestAnimationFrame = (callback) => {
-    return setTimeout(callback, 1000 / 60);
-  };
-}
+import { DataContext } from "../contexts/DataContext"; // Import DataContext
 
 Chart.register(
   LineController,
@@ -24,19 +18,9 @@ Chart.register(
 );
 
 export default function Stream() {
+  const { boatData } = useContext(DataContext); // Use DataContext to get boatData
   const dataset1Data = useRef([]);
   const dataset2Data = useRef([]);
-
-  useEffect(() => {
-    return () => {
-      Object.keys(Chart.instances).forEach((key) => {
-        const chart = Chart.instances[key];
-        if (chart) {
-          chart.destroy();
-        }
-      });
-    };
-  }, []);
 
   return (
     <Line
@@ -71,17 +55,14 @@ export default function Stream() {
               onRefresh: (chart) => {
                 console.log("onRefresh called");
                 chart.data.datasets.forEach((dataset, index) => {
+                  const latestPath = boatData?.path?.[boatData.path.length - 1];
+                  console.log("course", boatData?.data?.gps?.course);
+                  if (!boatData?.data?.gps?.course) return;
                   const newDataPoint = {
                     x: Date.now(),
-                    y: Math.random()
+                    y: boatData?.data?.gps?.course
                   };
-                  console.log("Adding data point:", newDataPoint);
-                  if (index === 0) {
-                    dataset1Data.current.push(newDataPoint);
-                  } else {
-                    dataset2Data.current.push(newDataPoint);
-                  }
-                  console.log("Dataset length:", dataset.data.length);
+                  dataset.data.push(newDataPoint);
                 });
                 chart.update('none'); // Force a full update without animations
               }
@@ -89,7 +70,7 @@ export default function Stream() {
           },
           y: {
             min: 0, // Set the minimum value for the y-axis
-            max: 1  // Set the maximum value for the y-axis
+            max: 360  // Set the maximum value for the y-axis
           }
         }
       }}
