@@ -1,5 +1,15 @@
 import React, { useRef } from "react";
-import { Chart, LinearScale, LineController, LineElement, PointElement, CategoryScale, Title, Tooltip, Legend } from "chart.js";
+import {
+  Chart,
+  LinearScale,
+  LineController,
+  LineElement,
+  PointElement,
+  CategoryScale,
+  Title,
+  Tooltip,
+  Legend
+} from "chart.js";
 import StreamingPlugin from "chartjs-plugin-streaming";
 import { Line } from "react-chartjs-2";
 import "chartjs-adapter-luxon";
@@ -16,20 +26,29 @@ Chart.register(
   StreamingPlugin
 );
 
-export default function Stream({ dataSources }) {
+// Default colors for datasets
+const defaultColors = [
+  { background: "rgba(255, 99, 132, 0.5)", border: "rgb(255, 99, 132)" },
+  { background: "rgba(54, 162, 235, 0.5)", border: "rgb(54, 162, 235)" },
+  { background: "rgba(75, 192, 192, 0.5)", border: "rgb(75, 192, 192)" },
+  { background: "rgba(255, 206, 86, 0.5)", border: "rgb(255, 206, 86)" },
+  { background: "rgba(153, 102, 255, 0.5)", border: "rgb(153, 102, 255)" }
+];
+
+export default function Stream({ dataSources, yMin = null, yMax = null }) {
   const datasetsRef = useRef(dataSources.map(() => []));
 
   return (
     <Line
       data={{
         datasets: dataSources.map((source, index) => ({
-          label: source.label,
-          backgroundColor: source.backgroundColor || "rgba(0, 0, 0, 0.1)",
-          borderColor: source.borderColor || "rgb(0, 0, 0)",
-          borderDash: source.borderDash || [],
-          cubicInterpolationMode: source.cubicInterpolationMode || "default",
-          fill: source.fill !== undefined ? source.fill : true,
-          data: datasetsRef.current[index],
+          label: source.label || `Dataset ${index + 1}`,
+          backgroundColor: defaultColors[index % defaultColors.length].background,
+          borderColor: defaultColors[index % defaultColors.length].border,
+          borderDash: [],
+          cubicInterpolationMode: "default",
+          fill: true,
+          data: datasetsRef.current[index]
         }))
       }}
       options={{
@@ -42,16 +61,17 @@ export default function Stream({ dataSources }) {
               refresh: 200,
               onRefresh: (chart) => {
                 dataSources.forEach((source, index) => {
-                  const newData = source.getDataPoint();
-                  if (newData) datasetsRef.current[index].push(newData);
+                  if (source.data !== undefined && source.data !== null) {
+                    datasetsRef.current[index].push({ x: Date.now(), y: source.data });
+                  }
                 });
-                chart.update('none');
+                chart.update("none");
               }
             }
           },
           y: {
-            min: 0,
-            max: 360
+            min: yMin !== null ? yMin : undefined, // Use provided min, otherwise dynamic
+            max: yMax !== null ? yMax : undefined, // Use provided max, otherwise dynamic
           }
         }
       }}

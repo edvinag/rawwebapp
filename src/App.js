@@ -88,7 +88,10 @@ const AppContent = () => {
         <Box sx={{ flex: 1 }}>
           <Routes>
             <Route path="/" element={<MapComponent />} />
-            <Route path="/stream" element={<Stream dataSources={dataSources} />} /> Add route for BoatDataPage
+            <Route path="/stream" element={<Stream dataSources={[
+  { label: "Course", data: boatData?.data?.gps?.course },
+  { label: "Longitude", data: boatData?.data?.gps?.location?.longitude }
+]} />} /> Add route for BoatDataPage
           </Routes>
         </Box>
       </Box>
