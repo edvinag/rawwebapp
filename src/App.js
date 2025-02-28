@@ -3,17 +3,15 @@ import { IconButton, Box, AppBar, Toolbar, Typography, Checkbox, FormControlLabe
 import MenuIcon from '@mui/icons-material/Menu';
 import { HashRouter as Router, Routes, Route } from 'react-router-dom';
 
-import Home from './components/Home';
 import MapComponent from './components/MapComponent';
 import SettingsDrawer from './components/SettingsDrawer';
 import { DataProvider, useDataContext } from './contexts/DataContext';
 import { ApiProvider } from './contexts/SettingsContext';
-import Stream from './components/Stream';
-// import BoatDataPage from './components/BoatDataPage'; // Import BoatDataPage component
+import BoatDataPage from './components/BoatDataPage';
 
 const AppContent = () => {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-  const { follow, setFollow } = useDataContext(); // Access follow state from DataContext
+  const { follow, setFollow } = useDataContext();
 
   const toggleDrawer = (open) => (event) => {
     if (event.type === 'keydown' && (event.key === 'Tab' || event.key === 'Shift')) {
@@ -28,31 +26,7 @@ const AppContent = () => {
 
   const menuItems = [
     { text: 'Map', route: '/' },
-    { text: 'Stream', route: '/stream' }, // Add menu item for Boat Data
-  ];
-  const { boatData } = useDataContext(DataProvider);
-
-  const dataSources = [
-    {
-      label: "Course",
-      backgroundColor: "rgba(255, 99, 132, 0.5)",
-      borderColor: "rgb(255, 99, 132)",
-      borderDash: [8, 4],
-      getDataPoint: () => {
-        const course = boatData?.data?.gps?.course;
-        return course ? { x: Date.now(), y: course } : null;
-      },
-    },
-    {
-      label: "Longitude",
-      backgroundColor: "rgba(54, 162, 235, 0.5)",
-      borderColor: "rgb(54, 162, 235)",
-      cubicInterpolationMode: "monotone",
-      getDataPoint: () => {
-        const longitude = boatData?.data?.gps?.location?.longitude;
-        return longitude ? { x: Date.now(), y: longitude } : null;
-      },
-    }
+    { text: 'BoatData', route: '/data' }, // Add menu item for Boat Data
   ];
 
   return (
@@ -88,10 +62,7 @@ const AppContent = () => {
         <Box sx={{ flex: 1 }}>
           <Routes>
             <Route path="/" element={<MapComponent />} />
-            <Route path="/stream" element={<Stream dataSources={[
-  { label: "Course", data: boatData?.data?.gps?.course },
-  { label: "Longitude", data: boatData?.data?.gps?.location?.longitude }
-]} />} /> Add route for BoatDataPage
+            <Route path="/data" element={<BoatDataPage />} />
           </Routes>
         </Box>
       </Box>
