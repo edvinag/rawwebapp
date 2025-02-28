@@ -32,7 +32,7 @@ const AppContent = () => {
   return (
     <Router>
       <Box sx={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
-        <AppBar position="static">
+        <AppBar position="sticky">
           <Toolbar>
             <IconButton edge="start" color="inherit" aria-label="menu" onClick={toggleDrawer(true)}>
               <MenuIcon />
