@@ -1,4 +1,3 @@
-// MapComponent.js
 import React, { useEffect, useRef } from 'react';
 import { MapContainer, LayersControl, useMap } from 'react-leaflet';
 import TileLayers from './TileLayers';
@@ -9,14 +8,14 @@ import RoutePolyline from './RoutePolyline';
 import TargetLine from './TargetLine';
 import BoatPath from './BoatPath';
 import 'leaflet/dist/leaflet.css';
-import { useDataContext } from '../contexts/DataContext'; // Import DataContext
+import { useDataContext } from '../contexts/DataContext';
 
 const initialPosition = [57.573517, 11.9269];
 
 const MapComponent = () => {
   const { boatData, follow, setFollow } = useDataContext();
   const mapRef = useRef(null);
-  const lastPositionRef = useRef(null); // Store last position to reduce setView calls
+  const lastPositionRef = useRef(null);
 
   const MapEventsHandler = () => {
     const map = useMap();
@@ -26,7 +25,6 @@ const MapComponent = () => {
 
       // Disable follow when the user interacts with the map
       const handleUserInteraction = () => setFollow(false);
-
       map.on('mousedown', handleUserInteraction);
       map.on('touchstart', handleUserInteraction);
 
@@ -45,41 +43,42 @@ const MapComponent = () => {
 
       const map = mapRef.current;
       if (map) {
-        // Only update the view if the boat moves significantly (prevent excessive updates)
         if (
           !lastPositionRef.current || 
           Math.abs(lastPositionRef.current[0] - latestPosition[0]) > 0.0001 || 
           Math.abs(lastPositionRef.current[1] - latestPosition[1]) > 0.0001
         ) {
           map.setView(latestPosition, map.getZoom());
-          lastPositionRef.current = latestPosition; // Update last known position
+          lastPositionRef.current = latestPosition;
         }
       }
     }
   }, [boatData, follow]);
 
   return (
-    <MapContainer
-      center={initialPosition}
-      zoom={16}
-      style={{ height: "100vh", width: "100%" }}
-      doubleClickZoom={false}
-      whenCreated={(mapInstance) => {
-        console.log('Map created:', mapInstance);
-        mapRef.current = mapInstance;
-      }}
-    >
-      <LayersControl position="topright">
-        <TileLayers />
-        <AISShipsLayer />
-        <TargetMarker />
-        <TargetLine />
-        <RoutePolyline />
-        <BoatPath />
-      </LayersControl>
-      <MyBoatMarker />
-      <MapEventsHandler />
-    </MapContainer>
+    <div style={{ flex: 1, display: 'flex' }}>
+      <MapContainer
+        center={initialPosition}
+        zoom={16}
+        style={{ flex: 1, width: "100%" }} // Uses flex instead of fixed height
+        doubleClickZoom={false}
+        whenCreated={(mapInstance) => {
+          console.log('Map created:', mapInstance);
+          mapRef.current = mapInstance;
+        }}
+      >
+        <LayersControl position="topright">
+          <TileLayers />
+          <AISShipsLayer />
+          <TargetMarker />
+          <TargetLine />
+          <RoutePolyline />
+          <BoatPath />
+        </LayersControl>
+        <MyBoatMarker />
+        <MapEventsHandler />
+      </MapContainer>
+    </div>
   );
 };
 

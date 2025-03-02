@@ -26,12 +26,13 @@ const AppContent = () => {
 
   const menuItems = [
     { text: 'Map', route: '/' },
-    { text: 'BoatData', route: '/data' }, // Add menu item for Boat Data
+    { text: 'BoatData', route: '/data' },
   ];
 
   return (
     <Router>
-      <Box sx={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
+      <Box sx={{ display: 'flex', flexDirection: 'column', height: '100vh', overflow: 'hidden' }}>
+        {/* AppBar at the top */}
         <AppBar position="sticky">
           <Toolbar>
             <IconButton edge="start" color="inherit" aria-label="menu" onClick={toggleDrawer(true)}>
@@ -53,13 +54,11 @@ const AppContent = () => {
           </Toolbar>
         </AppBar>
 
-        <SettingsDrawer
-          isDrawerOpen={isDrawerOpen}
-          toggleDrawer={toggleDrawer}
-          menuItems={menuItems}
-        />
+        {/* Sidebar Drawer */}
+        <SettingsDrawer isDrawerOpen={isDrawerOpen} toggleDrawer={toggleDrawer} menuItems={menuItems} />
 
-        <Box sx={{ flex: 1 }}>
+        {/* Main Content - Ensuring full height usage */}
+        <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', height: 'calc(100vh - 64px)', overflow: 'hidden' }}>
           <Routes>
             <Route path="/" element={<MapComponent />} />
             <Route path="/data" element={<BoatDataPage />} />
