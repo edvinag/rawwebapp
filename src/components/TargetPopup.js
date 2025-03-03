@@ -1,7 +1,8 @@
-import React, { useContext, useEffect, useRef } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
-import { Room, AddLocation } from '@mui/icons-material';
+import { Room, AddLocation, ErrorOutline } from '@mui/icons-material';
+import { Alert, Snackbar } from '@mui/material';
 import { useApi } from '../contexts/SettingsContext';
 import { DataContext } from '../contexts/DataContext';
 
@@ -9,17 +10,26 @@ const TargetPopup = ({ markerPosition, closePopup }) => {
   const { apiKey } = useApi();
   const { boatData, routeData, pushRouteData } = useContext(DataContext);
   const prevRouteDataRef = useRef(routeData);
+  const [error, setError] = useState(null);
+  const [openError, setOpenError] = useState(false);
 
   useEffect(() => {
-    // Close the popup only if routeData has changed AFTER the component was first rendered
     if (prevRouteDataRef.current !== routeData && routeData?.geometry?.coordinates.length) {
       closePopup();
     }
-    prevRouteDataRef.current = routeData; // Update the previous route data reference
+    prevRouteDataRef.current = routeData;
   }, [routeData, closePopup]);
 
   const fetchRouteData = async (startLongitude, startLatitude) => {
-    if (!markerPosition || !apiKey) return null;
+    if (!markerPosition) {
+      showError("Please select a destination marker.");
+      return null;
+    }
+    if (!apiKey) {
+      showError("Missing API key. Please check your settings.");
+      return null;
+    }
+
     const api_url = "https://nautical-hub.skippo.io/aws/autoroute";
     const auth_header = `Basic ${apiKey}`;
     const course = `${startLongitude},${startLatitude};${markerPosition.lng},${markerPosition.lat}`;
@@ -38,12 +48,16 @@ const TargetPopup = ({ markerPosition, closePopup }) => {
         headers: { "Authorization": auth_header }
       });
 
-      if (response.ok) return await response.json();
-      console.error("Failed to retrieve data:", response.status, response.statusText);
+      if (!response.ok) {
+        showError(`Failed to retrieve data: ${response.status} ${response.statusText}`);
+        return null;
+      }
+
+      return await response.json();
     } catch (error) {
-      console.error("Error making request:", error);
+      showError("Error while fetching route data. Please check your internet connection.");
+      return null;
     }
-    return null;
   };
 
   const handleGoToSpot = async () => {
@@ -56,7 +70,11 @@ const TargetPopup = ({ markerPosition, closePopup }) => {
   };
 
   const handleAddSpot = async () => {
-    if (!routeData?.geometry?.coordinates.length) return;
+    if (!routeData?.geometry?.coordinates.length) {
+      showError("No existing route found. Please start a new route first.");
+      return;
+    }
+    
     const lastCoordinate = routeData.geometry.coordinates.at(-1);
     const [startLongitude, startLatitude] = lastCoordinate;
     const newData = await fetchRouteData(startLongitude, startLatitude);
@@ -71,6 +89,15 @@ const TargetPopup = ({ markerPosition, closePopup }) => {
       };
       await pushRouteData(combinedRouteData, true);
     }
+  };
+
+  const showError = (message) => {
+    setError(message);
+    setOpenError(true);
+  };
+
+  const handleCloseError = () => {
+    setOpenError(false);
   };
 
   return (
@@ -96,6 +123,13 @@ const TargetPopup = ({ markerPosition, closePopup }) => {
           Add spot
         </Button>
       </div>
+
+      {/* Error Snackbar */}
+      <Snackbar open={openError} autoHideDuration={5000} onClose={handleCloseError}>
+        <Alert severity="error" onClose={handleCloseError} sx={{ width: '100%' }}>
+          <ErrorOutline sx={{ marginRight: 1 }} /> {error}
+        </Alert>
+      </Snackbar>
     </div>
   );
 };
