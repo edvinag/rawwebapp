@@ -1,8 +1,20 @@
 import React, { useState } from 'react';
-import { Drawer, List, ListItem, ListItemText, Box, TextField, Button } from '@mui/material';
+import { Drawer, List, ListItem, ListItemText, ListItemIcon, Box, TextField, Button, Divider, Typography } from '@mui/material';
 import { Link } from 'react-router-dom';
 import { useApi } from '../contexts/SettingsContext';
 import { useDataContext } from '../contexts/DataContext'; // Import DataContext
+
+// Icons for menu items
+import MapIcon from '@mui/icons-material/Map';
+import DirectionsBoatIcon from '@mui/icons-material/DirectionsBoat';
+import SettingsIcon from '@mui/icons-material/Settings';
+
+// Define an icon mapping based on menu text
+const iconMap = {
+  Map: <MapIcon />,
+  'Boat Data': <DirectionsBoatIcon />,
+  Settings: <SettingsIcon />,
+};
 
 const SettingsDrawer = ({ isDrawerOpen, toggleDrawer, menuItems }) => {
   const { apiKey, saveApiKey, serviceUrl, saveServiceUrl } = useApi(); // Access API and Service URL context
@@ -27,21 +39,64 @@ const SettingsDrawer = ({ isDrawerOpen, toggleDrawer, menuItems }) => {
   return (
     <Drawer anchor="left" open={isDrawerOpen} onClose={toggleDrawer(false)}>
       <Box
-        sx={{ width: 250 }}
+        sx={{
+          width: 280,
+          bgcolor: '#f4f4f4',
+          height: '100%',
+          display: 'flex',
+          flexDirection: 'column',
+        }}
         role="presentation"
         onClick={toggleDrawer(false)}
         onKeyDown={toggleDrawer(false)}
       >
+        {/* App Title */}
+        <Box sx={{ p: 2, bgcolor: 'primary.main', color: 'white', textAlign: 'center' }}>
+          <Typography variant="h6" fontWeight="bold">Navigation</Typography>
+        </Box>
+
+        {/* Menu Items */}
         <List>
           {menuItems.map(({ text, route }) => (
-            <ListItem component={Link} to={route} key={text} sx={{ textDecoration: 'none', color: 'inherit' }}>
-              <ListItemText primary={text} />
+            <ListItem
+              button
+              component={Link}
+              to={route}
+              key={text}
+              sx={{
+                textDecoration: 'none',
+                color: 'inherit',
+                '&:hover': {
+                  bgcolor: 'primary.light',
+                  color: 'white',
+                },
+                padding: '12px 16px',
+              }}
+            >
+              <ListItemIcon sx={{ minWidth: '40px', color: 'primary.main' }}>
+                {iconMap[text] || <SettingsIcon />}
+              </ListItemIcon>
+              <ListItemText
+                primary={text}
+                primaryTypographyProps={{
+                  fontSize: '1rem',
+                  fontWeight: 'bold',
+                }}
+              />
             </ListItem>
           ))}
         </List>
 
+        <Divider sx={{ mt: 2 }} />
+
         {/* Settings Input Section */}
-        <Box sx={{ p: 2 }} onClick={(e) => e.stopPropagation()} onKeyDown={(e) => e.stopPropagation()}>
+        <Box
+          sx={{ p: 2 }}
+          onClick={(e) => e.stopPropagation()}
+          onKeyDown={(e) => e.stopPropagation()}
+        >
+          <Typography variant="subtitle1" sx={{ mb: 1 }} fontWeight="bold">Settings</Typography>
+
           {/* API Key Input */}
           <TextField
             label="API Key"

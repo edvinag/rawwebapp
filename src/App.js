@@ -9,6 +9,9 @@ import { DataProvider, useDataContext } from './contexts/DataContext';
 import { ApiProvider } from './contexts/SettingsContext';
 import BoatDataPage from './components/BoatDataPage';
 
+import MapIcon from '@mui/icons-material/Map';
+import DirectionsBoatIcon from '@mui/icons-material/DirectionsBoat';
+
 const AppContent = () => {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const { follow, setFollow } = useDataContext();
@@ -25,8 +28,8 @@ const AppContent = () => {
   };
 
   const menuItems = [
-    { text: 'Map', route: '/' },
-    { text: 'BoatData', route: '/data' },
+    { text: 'Map', route: '/', icon: <MapIcon /> },
+    { text: 'Boat Data', route: '/data', icon: <DirectionsBoatIcon /> },
   ];
 
   return (
