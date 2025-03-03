@@ -1,5 +1,4 @@
-// TargetPopup.js
-import React, { useContext } from 'react';
+import React, { useContext, useEffect, useRef } from 'react';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 import { Room, AddLocation } from '@mui/icons-material';
@@ -9,6 +8,15 @@ import { DataContext } from '../contexts/DataContext';
 const TargetPopup = ({ markerPosition, closePopup }) => {
   const { apiKey } = useApi();
   const { boatData, routeData, pushRouteData } = useContext(DataContext);
+  const prevRouteDataRef = useRef(routeData);
+
+  useEffect(() => {
+    // Close the popup only if routeData has changed AFTER the component was first rendered
+    if (prevRouteDataRef.current !== routeData && routeData?.geometry?.coordinates.length) {
+      closePopup();
+    }
+    prevRouteDataRef.current = routeData; // Update the previous route data reference
+  }, [routeData, closePopup]);
 
   const fetchRouteData = async (startLongitude, startLatitude) => {
     if (!markerPosition || !apiKey) return null;
@@ -44,7 +52,6 @@ const TargetPopup = ({ markerPosition, closePopup }) => {
     if (data) {
       data.geometry.coordinates[0] = [longitude, latitude];
       await pushRouteData(data, false, 1);
-      closePopup();
     }
   };
 
