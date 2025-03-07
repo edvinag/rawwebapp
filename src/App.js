@@ -8,6 +8,7 @@ import SettingsDrawer from './components/SettingsDrawer';
 import { DataProvider, useDataContext } from './contexts/DataContext';
 import { ApiProvider } from './contexts/SettingsContext';
 import BoatDataPage from './components/BoatDataPage';
+import SettingsJson from './components/SettingsJson';
 
 import MapIcon from '@mui/icons-material/Map';
 import DirectionsBoatIcon from '@mui/icons-material/DirectionsBoat';
@@ -30,6 +31,7 @@ const AppContent = () => {
   const menuItems = [
     { text: 'Map', route: '/', icon: <MapIcon /> },
     { text: 'Boat Data', route: '/data', icon: <DirectionsBoatIcon /> },
+    { text: 'Settings', route: '/settings', icon: <SettingsJson /> },
   ];
 
   return (
@@ -65,6 +67,7 @@ const AppContent = () => {
           <Routes>
             <Route path="/" element={<MapComponent />} />
             <Route path="/data" element={<BoatDataPage />} />
+            <Route path="/settings" element={<SettingsJson />} />
           </Routes>
         </Box>
       </Box>
