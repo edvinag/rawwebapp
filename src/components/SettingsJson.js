@@ -57,26 +57,21 @@ const SettingsJson = () => {
         <Container
             maxWidth="md"
             style={{
-                backgroundColor: "#1c2833",
-                color: "#116a6f",
+                // backgroundColor: "#1c2833",
+                // color: "#116a6f",
                 padding: "20px",
                 borderRadius: "8px",
                 maxHeight: "90vh", // Ensure it doesn't take full height
                 overflowY: "auto", // Enable scrolling
             }}
         >
-            <Typography variant="h4" gutterBottom>
-                RawCat
-            </Typography>
-
             <Typography variant="h5" style={{ marginTop: "20px" }}>
                 Settings
             </Typography>
-            <Paper elevation={3} style={{ padding: "10px", backgroundColor: "#2e3b4e", color: "white" }}>
+            <Paper elevation={3} style={{ padding: "10px" }}>
                 {settings ? (
                     <JsonView
                         src={settings}
-                        theme="monokai"
                         collapsed={2}
                         onEdit={(e) => setSettings(e.updated_src)}
                     />
@@ -94,8 +89,8 @@ const SettingsJson = () => {
             
             <Typography variant="h5" style={{ marginTop: "40px" }}>Data</Typography>
 
-            <Paper elevation={3} style={{ padding: "10px", backgroundColor: "#2e3b4e", color: "white" }}>
-                {data ? <JsonView src={data} theme="monokai" collapsed={2} /> : <Typography>Loading data...</Typography>}
+            <Paper elevation={3} style={{ padding: "10px" }}>
+                {data ? <JsonView src={data} collapsed={2} /> : <Typography>Loading data...</Typography>}
             </Paper>
         </Container>
     );
