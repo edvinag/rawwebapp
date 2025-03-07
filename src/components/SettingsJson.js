@@ -53,12 +53,20 @@ const SettingsJson = () => {
         }
     };
 
+    // Copy JSON to clipboard
+    const copyToClipboard = async (jsonData) => {
+        try {
+            await navigator.clipboard.writeText(JSON.stringify(jsonData, null, 2));
+            alert("Copied to clipboard!");
+        } catch (error) {
+            console.error("Failed to copy JSON:", error);
+        }
+    };
+
     return (
         <Container
             maxWidth="md"
             style={{
-                // backgroundColor: "#1c2833",
-                // color: "#116a6f",
                 padding: "20px",
                 borderRadius: "8px",
                 maxHeight: "90vh", // Ensure it doesn't take full height
@@ -83,8 +91,11 @@ const SettingsJson = () => {
             <Button variant="contained" color="primary" style={{ marginTop: "20px", marginRight: "10px" }} onClick={readClipboard}>
                 From Clipboard
             </Button>
-            <Button variant="contained" color="secondary" style={{ marginTop: "20px" }} onClick={postSettings}>
+            <Button variant="contained" color="secondary" style={{ marginTop: "20px", marginRight: "10px" }} onClick={postSettings}>
                 Upload Settings
+            </Button>
+            <Button variant="contained" color="default" style={{ marginTop: "20px" }} onClick={() => copyToClipboard(settings)}>
+                Copy Settings JSON
             </Button>
             
             <Typography variant="h5" style={{ marginTop: "40px" }}>Data</Typography>
@@ -92,6 +103,10 @@ const SettingsJson = () => {
             <Paper elevation={3} style={{ padding: "10px" }}>
                 {data ? <JsonView src={data} collapsed={2} /> : <Typography>Loading data...</Typography>}
             </Paper>
+
+            <Button variant="contained" color="default" style={{ marginTop: "20px" }} onClick={() => copyToClipboard(data)}>
+                Copy Data JSON
+            </Button>
         </Container>
     );
 };
