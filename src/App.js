@@ -54,7 +54,7 @@ const AppContent = () => {
                   color="default"
                 />
               }
-              label="Follow the boat"
+              label="Follow Boat"
             />
           </Toolbar>
         </AppBar>
