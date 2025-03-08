@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { 
-  Card, CardContent, Typography, Grid, Container, FormControlLabel, Checkbox 
+  Card, CardContent, Typography, Container, FormControlLabel, Checkbox 
 } from "@mui/material";
 import { DataProvider, useDataContext } from "../contexts/DataContext";
 import Stream from "./Stream"; // Assuming you have a Stream component

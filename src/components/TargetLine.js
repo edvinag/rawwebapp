@@ -1,6 +1,6 @@
 // BoatRouteLine.js
 import React from 'react';
-import { Polyline, LayersControl, FeatureGroup, Circle, CircleMarker } from 'react-leaflet';
+import { Polyline, LayersControl, FeatureGroup, CircleMarker } from 'react-leaflet';
 import { useDataContext } from '../contexts/DataContext';
 
 const { Overlay } = LayersControl;
