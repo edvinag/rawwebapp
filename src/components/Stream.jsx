@@ -58,7 +58,7 @@ export default function Stream({ dataSources, yMin = null, yMax = null }) {
             realtime: {
               delay: 500,
               duration: 20000,
-              refresh: 200,
+              refresh: 500,
               onRefresh: (chart) => {
                 dataSources.forEach((source, index) => {
                   if (source.data !== undefined && source.data !== null) {

@@ -18,7 +18,8 @@ const BoatDataPage = () => {
   const [showGraphs, setShowGraphs] = useState({
     controllerError: true,
     rudderPosition: true,
-    rudderVoltage: true
+    rudderVoltage: true,
+    dynamicScale: false
   });
 
   // Handle Checkbox Change
@@ -34,7 +35,8 @@ const BoatDataPage = () => {
         display: "flex", 
         flexDirection: "row", 
         padding: "20px", 
-        gap: "20px"
+        gap: "20px",
+        overflow: "hidden"
       }}
     >
       {/* Left Panel: Boat Data */}
@@ -83,51 +85,72 @@ const BoatDataPage = () => {
 
       {/* Right Panel: Stream Graphs */}
       <Card style={{ flexGrow: 1, height: "100%", padding: "10px", overflowY: "auto" }}>
-        <CardContent style={{ width: "100%", height: "100%" }}>
+        <CardContent style={{ width: "100%", height: "100%", overflowY: "auto" }}>
           <Typography variant="h4" gutterBottom>Live Data Streams</Typography>
+
+          {/* Checkboxes to toggle graphs */}
+          <div style={{ marginBottom: "20px" }}>
+            <FormControlLabel
+              control={<Checkbox checked={showGraphs.controllerError} onChange={handleCheckboxChange} name="controllerError" />}
+              label="Show Controller Error Graph"
+            />
+            <FormControlLabel
+              control={<Checkbox checked={showGraphs.rudderPosition} onChange={handleCheckboxChange} name="rudderPosition" />}
+              label="Show Rudder Position Graph"
+            />
+            <FormControlLabel
+              control={<Checkbox checked={showGraphs.rudderVoltage} onChange={handleCheckboxChange} name="rudderVoltage" />}
+              label="Show Rudder Voltage Graph"
+            />
+            <FormControlLabel
+              control={<Checkbox checked={showGraphs.dynamicScale} onChange={handleCheckboxChange} name="dynamicScale" />}
+              label="Dynamic Scale"
+            />
+          </div>
 
           {/* Controller Error Graph */}
           {showGraphs.controllerError && (
-            <Stream
-              dataSources={[
-                { label: "Controller Error", data: controller.error }
-              ]}
-            />
+            <div style={{ marginBottom: "20px" }}>
+              <Typography variant="h6">Controller Error</Typography>
+              <Stream
+                dataSources={[
+                  { label: "Controller Error", data: controller.error }
+                ]}
+                yMin={showGraphs.dynamicScale ? undefined : -180}
+                yMax={showGraphs.dynamicScale ? undefined : 180}
+              />
+            </div>
           )}
 
           {/* Rudder Position vs Ref Graph */}
           {showGraphs.rudderPosition && (
-            <Stream
-              dataSources={[
-                { label: "Rudder Position", data: rudder.position },
-                { label: "Rudder Ref", data: boatData.settings?.rudder?.ref }
-              ]}
-            />
+            <div style={{ marginBottom: "20px" }}>
+              <Typography variant="h6">Rudder Position vs Reference</Typography>
+              <Stream
+                dataSources={[
+                  { label: "Rudder Position", data: rudder.position },
+                  { label: "Rudder Ref", data: boatData.settings?.rudder?.ref }
+                ]}
+                yMin={showGraphs.dynamicScale ? undefined : -30}
+                yMax={showGraphs.dynamicScale ? undefined : 30}
+              />
+            </div>
           )}
 
           {/* Rudder Voltage vs Filtered Voltage Graph */}
           {showGraphs.rudderVoltage && (
-            <Stream
-              dataSources={[
-                { label: "Rudder Voltage", data: rudder.voltage },
-                { label: "Filtered Voltage", data: rudder.filteredVoltage }
-              ]}
-            />
+            <div style={{ marginBottom: "80px" }}>
+              <Typography variant="h6">Rudder Voltage vs Filtered Voltage</Typography>
+              <Stream
+                dataSources={[
+                  { label: "Rudder Voltage", data: rudder.voltage},
+                  { label: "Filtered Voltage", data: rudder.filteredVoltage}
+                ]}
+                yMin={showGraphs.dynamicScale ? undefined : 0}
+                yMax={showGraphs.dynamicScale ? undefined : 4095}
+              />
+            </div>
           )}
-
-          {/* Checkboxes to toggle graphs */}
-          <FormControlLabel
-            control={<Checkbox checked={showGraphs.controllerError} onChange={handleCheckboxChange} name="controllerError" />}
-            label="Show Controller Error Graph"
-          />
-          <FormControlLabel
-            control={<Checkbox checked={showGraphs.rudderPosition} onChange={handleCheckboxChange} name="rudderPosition" />}
-            label="Show Rudder Position Graph"
-          />
-          <FormControlLabel
-            control={<Checkbox checked={showGraphs.rudderVoltage} onChange={handleCheckboxChange} name="rudderVoltage" />}
-            label="Show Rudder Voltage Graph"
-          />
         </CardContent>
       </Card>
     </Container>
