@@ -6,28 +6,33 @@ const SettingsContext = createContext();
 // Custom hook to access the context
 export const useApi = () => useContext(SettingsContext);
 
-// Function to get serviceUrl from URL query parameters
-const getServiceUrlFromQuery = () => {
+// Function to get query parameters (serviceUrl or apiKey)
+const getQueryParam = (key) => {
   const params = new URLSearchParams(window.location.search);
-  return params.get('serviceUrl'); // Returns serviceUrl if exists, otherwise null
+  return params.get(key); // Returns the value of the key if exists, otherwise null
 };
 
-// Function to remove serviceUrl from the URL without reloading the page
-const cleanQueryParam = () => {
+// Function to remove a query parameter from the URL without reloading the page
+const cleanQueryParam = (key) => {
   const newUrl = new URL(window.location.href);
-  newUrl.searchParams.delete('serviceUrl'); // Remove serviceUrl param
+  newUrl.searchParams.delete(key); // Remove the specified param
   window.history.replaceState({}, document.title, newUrl.toString()); // Update URL without reload
 };
 
 // Provider component
 export const ApiProvider = ({ children }) => {
-  // Retrieve serviceUrl from query params if available, else use localStorage or default
-  const queryServiceUrl = getServiceUrlFromQuery();
+  // Retrieve serviceUrl and apiKey from query params if available, else use localStorage or default
+  const queryServiceUrl = getQueryParam('serviceUrl');
+  const queryApiKey = getQueryParam('apiKey');
+
   const storedServiceUrl = localStorage.getItem('serviceUrl') || 'http://localhost:5000';
+  const storedApiKey = localStorage.getItem('apiKey') || '';
+
   const initialServiceUrl = queryServiceUrl || storedServiceUrl;
+  const initialApiKey = queryApiKey || storedApiKey;
 
   const [serviceUrl, setServiceUrl] = useState(initialServiceUrl);
-  const [apiKey, setApiKey] = useState(() => localStorage.getItem('apiKey') || '');
+  const [apiKey, setApiKey] = useState(initialApiKey);
 
   // Save new service URL to state and localStorage
   const saveServiceUrl = (url) => {
@@ -36,16 +41,27 @@ export const ApiProvider = ({ children }) => {
     localStorage.setItem('serviceUrl', url);
   };
 
-  // Automatically update localStorage if serviceUrl is provided via query params
+  // Save new API key to state and localStorage
+  const saveApiKey = (key) => {
+    console.log('Saving API Key:', key);
+    setApiKey(key);
+    localStorage.setItem('apiKey', key);
+  };
+
+  // Automatically update localStorage if serviceUrl or apiKey are provided via query params
   useEffect(() => {
     if (queryServiceUrl) {
       saveServiceUrl(queryServiceUrl);
-      cleanQueryParam(); // Remove query param from URL
+      cleanQueryParam('serviceUrl'); // Remove from URL
     }
-  }, [queryServiceUrl]);
+    if (queryApiKey) {
+      saveApiKey(queryApiKey);
+      cleanQueryParam('apiKey'); // Remove from URL
+    }
+  }, [queryServiceUrl, queryApiKey]);
 
   return (
-    <SettingsContext.Provider value={{ apiKey, saveApiKey: setApiKey, serviceUrl, saveServiceUrl }}>
+    <SettingsContext.Provider value={{ apiKey, saveApiKey, serviceUrl, saveServiceUrl }}>
       {children}
     </SettingsContext.Provider>
   );
