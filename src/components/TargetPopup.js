@@ -74,17 +74,20 @@ const TargetPopup = ({ markerPosition, closePopup }) => {
       showError("No existing route found. Please start a new route first.");
       return;
     }
-    
+
     const lastCoordinate = routeData.geometry.coordinates.at(-1);
     const [startLongitude, startLatitude] = lastCoordinate;
     const newData = await fetchRouteData(startLongitude, startLatitude);
 
     if (newData) {
+      // Skip the first coordinate to avoid duplicating the starting point
+      const newCoordinates = newData.geometry.coordinates.slice(1);
+  
       const combinedRouteData = {
         ...routeData,
         geometry: {
           ...routeData.geometry,
-          coordinates: [...routeData.geometry.coordinates, ...newData.geometry.coordinates]
+          coordinates: [...routeData.geometry.coordinates, ...newCoordinates]
         }
       };
       await pushRouteData(combinedRouteData, true);
