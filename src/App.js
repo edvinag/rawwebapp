@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { IconButton, Box, AppBar, Toolbar, Typography, Checkbox, FormControlLabel } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import { HashRouter as Router, Routes, Route } from 'react-router-dom';
@@ -15,9 +15,16 @@ import DirectionsBoatIcon from '@mui/icons-material/DirectionsBoat';
 
 const AppContent = () => {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-  const [holdLineEnabled, setHoldLineEnabled] = useState(false); // Checkbox state for Hold Line
-  const { follow, setFollow } = useDataContext();
+  const [holdLineEnabled, setHoldLineEnabled] = useState(false); // Checkbox display state
+  const { follow, setFollow, boatData } = useDataContext(); // ✅ Access boatData
   const { serviceUrl } = useApi(); // ✅ Get service URL from context
+
+  // ✅ Sync checkbox display state when boatData changes (without triggering fetch)
+  useEffect(() => {
+    if (boatData?.settings?.controller?.type) {
+      setHoldLineEnabled(boatData.settings.controller.type === 'holdline');
+    }
+  }, [boatData]); // Syncs display only
 
   const toggleDrawer = (open) => (event) => {
     if (event.type === 'keydown' && (event.key === 'Tab' || event.key === 'Shift')) {
@@ -30,10 +37,10 @@ const AppContent = () => {
     setFollow(event.target.checked);
   };
 
-  // ✅ Handle Hold Line Checkbox Change
-  const handleHoldLineChange = async (event) => {
+  // ✅ Handle Hold Line Checkbox when clicked (user interaction only)
+  const handleHoldLineUserChange = async (event) => {
     const isChecked = event.target.checked;
-    setHoldLineEnabled(isChecked); // Update local state
+    setHoldLineEnabled(isChecked); // Update display state immediately for responsiveness
 
     // Correct URLs based on state
     const url = isChecked
@@ -81,12 +88,12 @@ const AppContent = () => {
               }
               label="Follow Boat"
             />
-            {/* ✅ Hold Line Checkbox */}
+            {/* ✅ Hold Line Checkbox (reflect state, fetch on user click) */}
             <FormControlLabel
               control={
                 <Checkbox
                   checked={holdLineEnabled}
-                  onChange={handleHoldLineChange}
+                  onChange={handleHoldLineUserChange} // User-driven fetch
                   color="default"
                 />
               }
