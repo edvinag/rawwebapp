@@ -6,7 +6,7 @@ import { HashRouter as Router, Routes, Route } from 'react-router-dom';
 import MapComponent from './components/MapComponent';
 import SettingsDrawer from './components/SettingsDrawer';
 import { DataProvider, useDataContext } from './contexts/DataContext';
-import { ApiProvider } from './contexts/SettingsContext';
+import { ApiProvider, useApi } from './contexts/SettingsContext';
 import BoatDataPage from './components/BoatDataPage';
 import SettingsJson from './components/SettingsJson';
 
@@ -15,7 +15,9 @@ import DirectionsBoatIcon from '@mui/icons-material/DirectionsBoat';
 
 const AppContent = () => {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [holdLineEnabled, setHoldLineEnabled] = useState(false); // Checkbox state for Hold Line
   const { follow, setFollow } = useDataContext();
+  const { serviceUrl } = useApi(); // ✅ Get service URL from context
 
   const toggleDrawer = (open) => (event) => {
     if (event.type === 'keydown' && (event.key === 'Tab' || event.key === 'Shift')) {
@@ -26,6 +28,28 @@ const AppContent = () => {
 
   const handleFollowChange = (event) => {
     setFollow(event.target.checked);
+  };
+
+  // ✅ Handle Hold Line Checkbox Change
+  const handleHoldLineChange = async (event) => {
+    const isChecked = event.target.checked;
+    setHoldLineEnabled(isChecked); // Update local state
+
+    // Correct URLs based on state
+    const url = isChecked
+      ? `${serviceUrl}/setHoldLine` // When checked
+      : `${serviceUrl}/controller?type=route`; // When unchecked
+
+    try {
+      const response = await fetch(url, { method: 'GET' }); // Perform GET request
+      if (response.ok) {
+        console.log(`Successfully called: ${url}`);
+      } else {
+        console.error(`Failed to call: ${url}`);
+      }
+    } catch (error) {
+      console.error(`Error calling ${url}:`, error);
+    }
   };
 
   const menuItems = [
@@ -46,6 +70,7 @@ const AppContent = () => {
             <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
               RawCat
             </Typography>
+            {/* Follow Boat Checkbox */}
             <FormControlLabel
               control={
                 <Checkbox
@@ -56,13 +81,24 @@ const AppContent = () => {
               }
               label="Follow Boat"
             />
+            {/* ✅ Hold Line Checkbox */}
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={holdLineEnabled}
+                  onChange={handleHoldLineChange}
+                  color="default"
+                />
+              }
+              label="Hold Line"
+            />
           </Toolbar>
         </AppBar>
 
         {/* Sidebar Drawer */}
         <SettingsDrawer isDrawerOpen={isDrawerOpen} toggleDrawer={toggleDrawer} menuItems={menuItems} />
 
-        {/* Main Content - Ensuring full height usage */}
+        {/* Main Content */}
         <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', height: 'calc(100vh - 64px)', overflow: 'hidden' }}>
           <Routes>
             <Route path="/" element={<MapComponent />} />
