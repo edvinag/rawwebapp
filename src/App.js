@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+// App.js or AppContent.js (wherever you have AppContent defined)
+import React, { useState } from 'react';
 import { IconButton, Box, AppBar, Toolbar, Typography, Checkbox, FormControlLabel } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import { HashRouter as Router, Routes, Route } from 'react-router-dom';
@@ -6,57 +7,25 @@ import { HashRouter as Router, Routes, Route } from 'react-router-dom';
 import MapComponent from './components/MapComponent';
 import SettingsDrawer from './components/SettingsDrawer';
 import { DataProvider, useDataContext } from './contexts/DataContext';
-import { ApiProvider, useApi } from './contexts/SettingsContext';
+import { ApiProvider } from './contexts/SettingsContext';
 import BoatDataPage from './components/BoatDataPage';
 import SettingsJson from './components/SettingsJson';
+import HoldLineToggle from './components/HoldLineToggle';
 
 import MapIcon from '@mui/icons-material/Map';
 import DirectionsBoatIcon from '@mui/icons-material/DirectionsBoat';
 
 const AppContent = () => {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-  const [holdLineEnabled, setHoldLineEnabled] = useState(false); // Checkbox display state
-  const { follow, setFollow, boatData } = useDataContext(); // ✅ Access boatData
-  const { serviceUrl } = useApi(); // ✅ Get service URL from context
-
-  // ✅ Sync checkbox display state when boatData changes (without triggering fetch)
-  useEffect(() => {
-    if (boatData?.settings?.controller?.type) {
-      setHoldLineEnabled(boatData.settings.controller.type === 'holdline');
-    }
-  }, [boatData]); // Syncs display only
+  const { follow, setFollow } = useDataContext();
 
   const toggleDrawer = (open) => (event) => {
-    if (event.type === 'keydown' && (event.key === 'Tab' || event.key === 'Shift')) {
-      return;
-    }
+    if (event.type === 'keydown' && (event.key === 'Tab' || event.key === 'Shift')) return;
     setIsDrawerOpen(open);
   };
 
   const handleFollowChange = (event) => {
     setFollow(event.target.checked);
-  };
-
-  // ✅ Handle Hold Line Checkbox when clicked (user interaction only)
-  const handleHoldLineUserChange = async (event) => {
-    const isChecked = event.target.checked;
-    setHoldLineEnabled(isChecked); // Update display state immediately for responsiveness
-
-    // Correct URLs based on state
-    const url = isChecked
-      ? `${serviceUrl}/setHoldLine` // When checked
-      : `${serviceUrl}/controller?type=route`; // When unchecked
-
-    try {
-      const response = await fetch(url, { method: 'GET' }); // Perform GET request
-      if (response.ok) {
-        console.log(`Successfully called: ${url}`);
-      } else {
-        console.error(`Failed to call: ${url}`);
-      }
-    } catch (error) {
-      console.error(`Error calling ${url}:`, error);
-    }
   };
 
   const menuItems = [
@@ -68,7 +37,6 @@ const AppContent = () => {
   return (
     <Router>
       <Box sx={{ display: 'flex', flexDirection: 'column', height: '100vh', overflow: 'hidden' }}>
-        {/* AppBar at the top */}
         <AppBar position="sticky">
           <Toolbar>
             <IconButton edge="start" color="inherit" aria-label="menu" onClick={toggleDrawer(true)}>
@@ -79,26 +47,11 @@ const AppContent = () => {
             </Typography>
             {/* Follow Boat Checkbox */}
             <FormControlLabel
-              control={
-                <Checkbox
-                  checked={follow}
-                  onChange={handleFollowChange}
-                  color="default"
-                />
-              }
+              control={<Checkbox checked={follow} onChange={handleFollowChange} color="default" />}
               label="Follow Boat"
             />
-            {/* ✅ Hold Line Checkbox (reflect state, fetch on user click) */}
-            <FormControlLabel
-              control={
-                <Checkbox
-                  checked={holdLineEnabled}
-                  onChange={handleHoldLineUserChange} // User-driven fetch
-                  color="default"
-                />
-              }
-              label="Hold Line"
-            />
+            {/* Hold Line Checkbox as separate component */}
+            <HoldLineToggle />
           </Toolbar>
         </AppBar>
 
