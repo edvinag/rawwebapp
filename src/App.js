@@ -13,11 +13,18 @@ import SettingsJson from './components/SettingsJson';
 import MapIcon from '@mui/icons-material/Map';
 import DirectionsBoatIcon from '@mui/icons-material/DirectionsBoat';
 
+// ✅ Import react-speech-recognition
+import SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognition';
+
+
 const AppContent = () => {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [holdLineEnabled, setHoldLineEnabled] = useState(false); // Checkbox display state
   const { follow, setFollow, boatData } = useDataContext(); // ✅ Access boatData
   const { serviceUrl } = useApi(); // ✅ Get service URL from context
+
+  // ✅ Speech recognition setup
+  const { transcript, listening, resetTranscript, browserSupportsSpeechRecognition } = useSpeechRecognition();
 
   // ✅ Sync checkbox display state when boatData changes (without triggering fetch)
   useEffect(() => {
@@ -58,6 +65,48 @@ const AppContent = () => {
       console.error(`Error calling ${url}:`, error);
     }
   };
+
+  // ✅ Detect "hold the line" and trigger API call if not already enabled
+  useEffect(() => {
+    console.log('🎙️ Transcript:', transcript);
+    if (transcript.toLowerCase().includes('raw cat hold the line') && !holdLineEnabled) {
+      console.log('🎙️ Voice command "hold the line" detected!');
+      resetTranscript(); // Clear transcript to avoid retrigger
+
+      // Trigger Hold Line
+      setHoldLineEnabled(true); // Update checkbox visually
+      const url = `${serviceUrl}/setHoldLine`; // API call to enable hold line mode
+      fetch(url, { method: 'GET' })
+        .then(response => {
+          if (response.ok) console.log('🎙️ Hold Line activated via voice!');
+          else console.error(`Failed to activate Hold Line via voice: ${url}`);
+        })
+        .catch(error => console.error(`Error activating Hold Line via voice: ${error}`));
+    }
+    if ((transcript.toLowerCase().includes('raw cat follow the route') || transcript.toLowerCase().includes('raw cat follow the root')) && holdLineEnabled) {
+      console.log('🎙️ Voice command "follow the route" detected!');
+      resetTranscript(); // Clear transcript to avoid retrigger
+
+      // Trigger Hold Line
+      setHoldLineEnabled(false); // Update checkbox visually
+      const url = `${serviceUrl}/controller?type=route`;
+      fetch(url, { method: 'GET' })
+        .then(response => {
+          if (response.ok) console.log('🎙️ Follow Route activated via voice!');
+          else console.error(`Failed to activate Follow Route via voice: ${url}`);
+        })
+        .catch(error => console.error(`Error activating Follow Route via voice: ${error}`));
+    }
+  }, [transcript, holdLineEnabled, resetTranscript, serviceUrl]);
+
+  // ✅ Auto-start listening for commands if supported
+  useEffect(() => {
+    if (browserSupportsSpeechRecognition) {
+      SpeechRecognition.startListening({ continuous: true });
+    } else {
+      console.warn('Browser does not support speech recognition.');
+    }
+  }, [browserSupportsSpeechRecognition]);
 
   const menuItems = [
     { text: 'Map', route: '/', icon: <MapIcon /> },
