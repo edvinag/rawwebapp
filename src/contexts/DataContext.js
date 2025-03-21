@@ -1,19 +1,31 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
 import { useApi } from './SettingsContext'; // Import service URL context
 
 export const DataContext = createContext();
 
 export const DataProvider = ({ children }) => {
   const { serviceUrl } = useApi(); // Get the service URL from context
+
+  // Boat and Route Data
   const [boatData, setBoatData] = useState({ path: [] });
   const [routeData, setRouteData] = useState(null);
+
+  // State Flags
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [fetchPaused, setFetchPaused] = useState(false);
-  const [follow, setFollow] = useState(true); // Add follow state
-  const [isFetchingBoatData, setIsFetchingBoatData] = useState(false); // Track boat data fetch status
-  const [isFetchingRouteData, setIsFetchingRouteData] = useState(false); // Track route data fetch status
+  const [follow, setFollow] = useState(true); // Follow boat checkbox
 
+  // Fetching status flags
+  const [isFetchingBoatData, setIsFetchingBoatData] = useState(false);
+  const [isFetchingRouteData, setIsFetchingRouteData] = useState(false);
+
+  // Compass Data
+  const [compassHeading, setCompassHeading] = useState(null);
+  const [compassEnabled, setCompassEnabled] = useState(false);
+  const compassListenerActive = useRef(false); // Internal flag for listener status
+
+  // ✅ Boat Data Fetch
   useEffect(() => {
     const fetchBoatData = async () => {
       if (fetchPaused || !serviceUrl || isFetchingBoatData) return;
@@ -46,6 +58,7 @@ export const DataProvider = ({ children }) => {
     return () => clearInterval(boatDataInterval);
   }, [fetchPaused, serviceUrl, isFetchingBoatData]);
 
+  // ✅ Route Data Fetch
   useEffect(() => {
     const fetchRouteData = async () => {
       if (fetchPaused || !serviceUrl || isFetchingRouteData) return;
@@ -66,10 +79,62 @@ export const DataProvider = ({ children }) => {
     return () => clearInterval(routeDataInterval);
   }, [fetchPaused, serviceUrl, isFetchingRouteData]);
 
+  // ✅ Compass Handling
+  const handleOrientation = (event) => {
+    const compass = event.alpha;
+    setCompassHeading(compass);
+  };
+
+  const enableCompass = async () => {
+    if (compassListenerActive.current) return; // Already active
+
+    if (
+      typeof DeviceOrientationEvent !== 'undefined' &&
+      typeof DeviceOrientationEvent.requestPermission === 'function'
+    ) {
+      try {
+        const response = await DeviceOrientationEvent.requestPermission();
+        if (response === 'granted') {
+          window.addEventListener('deviceorientation', handleOrientation, true);
+          compassListenerActive.current = true;
+          setCompassEnabled(true);
+        } else {
+          console.error('Permission denied for compass access.');
+          setCompassEnabled(false);
+        }
+      } catch (err) {
+        console.error('Compass permission error:', err);
+        setCompassEnabled(false);
+      }
+    } else if (typeof DeviceOrientationEvent !== 'undefined') {
+      // Android / desktop if supported
+      window.addEventListener('deviceorientation', handleOrientation, true);
+      compassListenerActive.current = true;
+      setCompassEnabled(true);
+    } else {
+      console.error('Compass not supported on this device.');
+      setCompassEnabled(false);
+    }
+  };
+
+  const disableCompass = () => {
+    if (compassListenerActive.current) {
+      window.removeEventListener('deviceorientation', handleOrientation);
+      compassListenerActive.current = false;
+    }
+    setCompassHeading(null);
+    setCompassEnabled(false);
+  };
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => disableCompass(); // Stop compass when component unmounts
+  }, []);
+
+  // ✅ Route Push
   const updateRouteData = (newRouteData) => setRouteData(newRouteData);
   const setRouteFetchPaused = (paused) => setFetchPaused(paused);
 
-  // Push Route Data Function
   const pushRouteData = async (data, keepIndex, goalIndex = null) => {
     if (!serviceUrl) {
       console.error("Service URL is not set.");
@@ -83,12 +148,12 @@ export const DataProvider = ({ children }) => {
       const response = await fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data)
+        body: JSON.stringify(data),
       });
 
       if (response.ok) {
         console.log("Route data successfully pushed to server");
-        updateRouteData(data); // Update context route data
+        updateRouteData(data);
       } else {
         console.error("Failed to push data to server:", response.status, response.statusText);
       }
@@ -103,11 +168,15 @@ export const DataProvider = ({ children }) => {
       routeData,
       loading,
       error,
-      follow, // Expose follow state
-      setFollow, // Expose setFollow function
+      follow,
+      setFollow,
       updateRouteData,
       setRouteFetchPaused,
-      pushRouteData, // Expose pushRouteData
+      pushRouteData,
+      compassHeading,        // ✅ Exposed heading
+      compassEnabled,       // ✅ Exposed enabled state
+      enableCompass,        // ✅ Exposed function to enable
+      disableCompass,       // ✅ Exposed function to disable
     }}>
       {children}
     </DataContext.Provider>

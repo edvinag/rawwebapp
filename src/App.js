@@ -11,6 +11,7 @@ import { ApiProvider } from './contexts/SettingsContext';
 import BoatDataPage from './components/BoatDataPage';
 import SettingsJson from './components/SettingsJson';
 import HoldLineToggle from './components/HoldLineToggle';
+import CompassToGo from './components/CompassToGo';
 
 import MapIcon from '@mui/icons-material/Map';
 import DirectionsBoatIcon from '@mui/icons-material/DirectionsBoat';
@@ -45,12 +46,16 @@ const AppContent = () => {
             <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
               RawCat
             </Typography>
+
+            {/* ✅ Compass display */}
+            <CompassToGo />
+
             {/* Follow Boat Checkbox */}
             <FormControlLabel
               control={<Checkbox checked={follow} onChange={handleFollowChange} color="default" />}
               label="Follow Boat"
             />
-            {/* Hold Line Checkbox as separate component */}
+            {/* Hold Line Checkbox */}
             <HoldLineToggle />
           </Toolbar>
         </AppBar>
