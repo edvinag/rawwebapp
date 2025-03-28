@@ -11,14 +11,13 @@ import { ApiProvider } from './contexts/SettingsContext';
 import BoatDataPage from './components/BoatDataPage';
 import SettingsJson from './components/SettingsJson';
 import HoldLineToggle from './components/HoldLineToggle';
-import CompassToGo from './components/CompassToGo';
 
 import MapIcon from '@mui/icons-material/Map';
 import DirectionsBoatIcon from '@mui/icons-material/DirectionsBoat';
 
 const AppContent = () => {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-  const { follow, setFollow, boatData, enableRoute} = useDataContext();
+  const { follow, setFollow, boatData, enableRoute, enableCompass, compassHeading} = useDataContext();
 
   const toggleDrawer = (open) => (event) => {
     if (event.type === 'keydown' && (event.key === 'Tab' || event.key === 'Shift')) return;
@@ -61,7 +60,9 @@ const AppContent = () => {
 
     {/* Right Side */}
     <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-      <CompassToGo />
+      <Button variant="contained" color="primary" onClick={enableCompass}>
+        Compass: {compassHeading !== null ? `${Math.round(compassHeading)}°` : 'N/A'}
+      </Button>
       <HoldLineToggle />
       <Button variant="contained" color="primary" onClick={enableRoute}>Follow route</Button>
       <FormControlLabel

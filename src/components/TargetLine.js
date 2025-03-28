@@ -6,7 +6,7 @@ import { useDataContext } from '../contexts/DataContext';
 const { Overlay } = LayersControl;
 
 const TargetLine = () => {
-  const { boatData, routeData } = useDataContext();
+  const { boatData, routeData, compassEnabled} = useDataContext();
 
   // Check if data is available
   if (!boatData || !boatData.data || !boatData.data.gps || !routeData || !routeData.geometry || !routeData.geometry.coordinates) {
@@ -39,7 +39,8 @@ const TargetLine = () => {
   ];
 
   return (
-    <Overlay name="Route to Target" checked> {/* checked for initial visibility */}
+    !compassEnabled ? (
+    <Overlay name="To Target" checked> {/* checked for initial visibility */}
       <FeatureGroup>
         {/* Draw a line between the boat position and the next target */}
         <Polyline
@@ -53,6 +54,7 @@ const TargetLine = () => {
         <CircleMarker center={targetRoutePosition} radius={10} color='darkblue' fillOpacity={1}/>
       </FeatureGroup>
     </Overlay>
+    ) : null
   );
 };
 

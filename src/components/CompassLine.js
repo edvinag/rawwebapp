@@ -30,7 +30,7 @@ function projectPoint(lat, lon, bearingDeg, distanceMeters) {
 }
 
 const CompassLine = () => {
-  const { boatData, compassHeading } = useDataContext();
+  const { boatData, compassHeading, compassEnabled } = useDataContext();
 
   if (
     !boatData ||
@@ -46,7 +46,8 @@ const CompassLine = () => {
   const projectedPoint = projectPoint(latitude, longitude, refCourseDeg, 100); // 100 meters ahead
 
   return (
-    <Overlay name="RefCourse Direction" checked>
+    compassEnabled ? (
+    <Overlay name="Compass Line" checked>
       <FeatureGroup>
         <Polyline
           positions={[
@@ -59,6 +60,7 @@ const CompassLine = () => {
         />
       </FeatureGroup>
     </Overlay>
+    ) : null
   );
 };
 
