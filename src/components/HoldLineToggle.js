@@ -1,29 +1,18 @@
 // components/HoldLineToggle.js
-import React, { useState, useEffect } from 'react';
-import { Checkbox, FormControlLabel } from '@mui/material';
+import React, { useEffect } from 'react';
+import { Button } from '@mui/material';
 import { useDataContext } from '../contexts/DataContext';
 import { useApi } from '../contexts/SettingsContext';
 
 const HoldLineToggle = () => {
-  const [holdLineEnabled, setHoldLineEnabled] = useState(false);
-  const { boatData } = useDataContext();
+  const { setHoldLineEnabled, disableCompass} = useDataContext();
   const { serviceUrl } = useApi();
 
-  // Sync checkbox display state when boatData changes (without triggering fetch)
-  useEffect(() => {
-    if (boatData?.settings?.controller?.type) {
-      setHoldLineEnabled(boatData.settings.controller.type === 'holdline');
-    }
-  }, [boatData]);
-
-  // Handle user interaction
-  const handleHoldLineUserChange = async (event) => {
-    const isChecked = event.target.checked;
-    setHoldLineEnabled(isChecked); // Optimistically update UI
-
-    const url = isChecked
-      ? `${serviceUrl}/setHoldLine` // Enable hold line
-      : `${serviceUrl}/controller?type=route`; // Disable hold line
+  const handleHoldLineUserChange = async () => {
+    setHoldLineEnabled(true); 
+    disableCompass();
+    
+    const url = `${serviceUrl}/setHoldLine`;
 
     try {
       const response = await fetch(url, { method: 'GET' });
@@ -38,16 +27,13 @@ const HoldLineToggle = () => {
   };
 
   return (
-    <FormControlLabel
-      control={
-        <Checkbox
-          checked={holdLineEnabled}
-          onChange={handleHoldLineUserChange}
-          color="default"
-        />
-      }
-      label="Hold Line"
-    />
+    <Button
+      variant="contained"
+      color="primary"
+      onClick={handleHoldLineUserChange}
+    >
+      Hold The Line
+    </Button>
   );
 };
 

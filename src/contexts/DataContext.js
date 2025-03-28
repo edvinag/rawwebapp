@@ -25,13 +25,26 @@ export const DataProvider = ({ children }) => {
   const [compassEnabled, setCompassEnabled] = useState(false);
   const compassListenerActive = useRef(false); // Internal flag for listener status
 
+  // Hold the line
+  const [holdLineEnabled, setHoldLineEnabled] = useState(false);
+
   // ✅ Boat Data Fetch
   useEffect(() => {
     const fetchBoatData = async () => {
       if (fetchPaused || !serviceUrl || isFetchingBoatData) return;
       setIsFetchingBoatData(true);
       try {
-        const response = await fetch(`${serviceUrl}/all`);
+        let response = null
+        if (compassEnabled) {
+          response = await fetch(`${serviceUrl}/all?controllerType=compass&refCourse=` + compassHeading);
+        }
+        else if(holdLineEnabled)
+        {
+          response = await fetch(`${serviceUrl}/all?controllerType=holdline`);
+        }
+        else {
+          response = await fetch(`${serviceUrl}/all?controllerType=route`);
+        }
         if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
         const result = await response.json();
 
@@ -94,6 +107,11 @@ export const DataProvider = ({ children }) => {
     if (heading !== null) {
       setCompassHeading(heading);
     }
+  };
+
+  const enableRoute = () => {
+    setHoldLineEnabled(false);
+    disableCompass();
   };
 
   const enableCompass = async () => {
@@ -188,6 +206,9 @@ export const DataProvider = ({ children }) => {
       compassEnabled,       // ✅ Exposed enabled state
       enableCompass,        // ✅ Exposed function to enable
       disableCompass,       // ✅ Exposed function to disable
+      holdLineEnabled,
+      setHoldLineEnabled,
+      enableRoute
     }}>
       {children}
     </DataContext.Provider>

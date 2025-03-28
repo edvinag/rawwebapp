@@ -1,6 +1,6 @@
 // App.js or AppContent.js (wherever you have AppContent defined)
 import React, { useState } from 'react';
-import { IconButton, Box, AppBar, Toolbar, Typography, Checkbox, FormControlLabel } from '@mui/material';
+import { IconButton, Box, AppBar, Toolbar, Typography, Checkbox, FormControlLabel, Button } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import { HashRouter as Router, Routes, Route } from 'react-router-dom';
 
@@ -18,7 +18,7 @@ import DirectionsBoatIcon from '@mui/icons-material/DirectionsBoat';
 
 const AppContent = () => {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-  const { follow, setFollow } = useDataContext();
+  const { follow, setFollow, boatData, enableRoute} = useDataContext();
 
   const toggleDrawer = (open) => (event) => {
     if (event.type === 'keydown' && (event.key === 'Tab' || event.key === 'Shift')) return;
@@ -39,25 +39,41 @@ const AppContent = () => {
     <Router>
       <Box sx={{ display: 'flex', flexDirection: 'column', height: '100vh', overflow: 'hidden' }}>
         <AppBar position="sticky">
-          <Toolbar>
-            <IconButton edge="start" color="inherit" aria-label="menu" onClick={toggleDrawer(true)}>
-              <MenuIcon />
-            </IconButton>
-            <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-              RawCat
-            </Typography>
+        <Toolbar>
+  <IconButton edge="start" color="inherit" onClick={toggleDrawer(true)} sx={{ mr: 2 }}>
+    <MenuIcon />
+  </IconButton>
 
-            {/* ✅ Compass display */}
-            <CompassToGo />
+  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexGrow: 1 }}>
+    {/* Left Side */}
+    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+      <Typography variant="h6">RawCat</Typography>
+      <Typography variant="subtitle1">
+        {boatData?.settings?.controller?.type === 'compass'
+          ? ' - follows the compass'
+          : boatData?.settings?.controller?.type === 'holdline'
+            ? ' - is holding the line'
+            : boatData?.settings?.controller?.type === 'route' 
+              ? ' - is following the route'
+              : ''}
+      </Typography>
+    </Box>
 
-            {/* Follow Boat Checkbox */}
-            <FormControlLabel
-              control={<Checkbox checked={follow} onChange={handleFollowChange} color="default" />}
-              label="Follow Boat"
-            />
-            {/* Hold Line Checkbox */}
-            <HoldLineToggle />
-          </Toolbar>
+    {/* Right Side */}
+    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+      <CompassToGo />
+      <HoldLineToggle />
+      <Button variant="contained" color="primary" onClick={enableRoute}>Follow route</Button>
+      <FormControlLabel
+        control={<Checkbox checked={follow} onChange={handleFollowChange} color="default" />}
+        label="Follow Boat"
+      />
+      
+    </Box>
+  </Box>
+</Toolbar>
+
+
         </AppBar>
 
         {/* Sidebar Drawer */}
