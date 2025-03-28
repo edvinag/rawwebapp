@@ -1,14 +1,25 @@
 import React, { useState } from 'react';
-import { Drawer, List, ListItem, ListItemText, ListItemIcon, Box, TextField, Button, Divider, Typography } from '@mui/material';
+import {
+  Drawer,
+  List,
+  ListItem,
+  ListItemText,
+  ListItemIcon,
+  Box,
+  TextField,
+  Button,
+  Divider,
+  Typography
+} from '@mui/material';
 import { Link } from 'react-router-dom';
 import { useApi } from '../contexts/SettingsContext';
+import { useTheme } from '@mui/material/styles';
 
-// Icons for menu items
+// Icons
 import MapIcon from '@mui/icons-material/Map';
 import DirectionsBoatIcon from '@mui/icons-material/DirectionsBoat';
 import SettingsIcon from '@mui/icons-material/Settings';
 
-// Define an icon mapping based on menu text
 const iconMap = {
   Map: <MapIcon />,
   'Boat Data': <DirectionsBoatIcon />,
@@ -16,20 +27,19 @@ const iconMap = {
 };
 
 const SettingsDrawer = ({ isDrawerOpen, toggleDrawer, menuItems }) => {
-  const { apiKey, saveApiKey, serviceUrl, saveServiceUrl } = useApi(); // Access API and Service URL context
+  const { apiKey, saveApiKey, serviceUrl, saveServiceUrl } = useApi();
+  const theme = useTheme();
 
   const [inputApiKey, setInputApiKey] = useState(apiKey || '');
   const [inputServiceUrl, setInputServiceUrl] = useState(serviceUrl || 'http://localhost:5000');
 
-  // Handlers for API Key
-  const handleApiKeyChange = (event) => setInputApiKey(event.target.value);
+  const handleApiKeyChange = (e) => setInputApiKey(e.target.value);
   const saveApiKeyToContext = () => {
     saveApiKey(inputApiKey);
     alert('API Key saved successfully!');
   };
 
-  // Handlers for Service URL
-  const handleServiceUrlChange = (event) => setInputServiceUrl(event.target.value);
+  const handleServiceUrlChange = (e) => setInputServiceUrl(e.target.value);
   const saveServiceUrlToContext = () => {
     saveServiceUrl(inputServiceUrl);
     alert('Service URL saved successfully!');
@@ -40,7 +50,8 @@ const SettingsDrawer = ({ isDrawerOpen, toggleDrawer, menuItems }) => {
       <Box
         sx={{
           width: 280,
-          bgcolor: '#f4f4f4',
+          bgcolor: theme.palette.background.default,
+          color: theme.palette.text.primary,
           height: '100%',
           display: 'flex',
           flexDirection: 'column',
@@ -49,8 +60,8 @@ const SettingsDrawer = ({ isDrawerOpen, toggleDrawer, menuItems }) => {
         onClick={toggleDrawer(false)}
         onKeyDown={toggleDrawer(false)}
       >
-        {/* App Title */}
-        <Box sx={{ p: 2, bgcolor: 'primary.main', color: 'white', textAlign: 'center' }}>
+        {/* Title */}
+        <Box sx={{ p: 2, bgcolor: theme.palette.primary.main, color: theme.palette.primary.contrastText, textAlign: 'center' }}>
           <Typography variant="h6" fontWeight="bold">Navigation</Typography>
         </Box>
 
@@ -66,13 +77,12 @@ const SettingsDrawer = ({ isDrawerOpen, toggleDrawer, menuItems }) => {
                 textDecoration: 'none',
                 color: 'inherit',
                 '&:hover': {
-                  bgcolor: 'primary.light',
-                  color: 'white',
+                  bgcolor: theme.palette.action.hover,
                 },
                 padding: '12px 16px',
               }}
             >
-              <ListItemIcon sx={{ minWidth: '40px', color: 'primary.main' }}>
+              <ListItemIcon sx={{ minWidth: '40px', color: theme.palette.text.secondary }}>
                 {iconMap[text] || <SettingsIcon />}
               </ListItemIcon>
               <ListItemText
@@ -88,7 +98,7 @@ const SettingsDrawer = ({ isDrawerOpen, toggleDrawer, menuItems }) => {
 
         <Divider sx={{ mt: 2 }} />
 
-        {/* Settings Input Section */}
+        {/* API & Service Settings */}
         <Box
           sx={{ p: 2 }}
           onClick={(e) => e.stopPropagation()}
@@ -96,7 +106,6 @@ const SettingsDrawer = ({ isDrawerOpen, toggleDrawer, menuItems }) => {
         >
           <Typography variant="subtitle1" sx={{ mb: 1 }} fontWeight="bold">Settings</Typography>
 
-          {/* API Key Input */}
           <TextField
             label="API Key"
             variant="outlined"
@@ -110,7 +119,6 @@ const SettingsDrawer = ({ isDrawerOpen, toggleDrawer, menuItems }) => {
             Save API Key
           </Button>
 
-          {/* Service URL Input */}
           <TextField
             label="Service URL"
             variant="outlined"

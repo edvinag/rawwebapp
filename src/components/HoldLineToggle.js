@@ -3,7 +3,7 @@ import { useDataContext } from '../contexts/DataContext';
 import { useApi } from '../contexts/SettingsContext';
 
 const HoldLineToggle = () => {
-  const { setHoldLineEnabled, disableCompass} = useDataContext();
+  const { setHoldLineEnabled, disableCompass, boatData} = useDataContext();
   const { serviceUrl } = useApi();
 
   const handleHoldLineUserChange = async () => {
@@ -27,7 +27,7 @@ const HoldLineToggle = () => {
   return (
     <Button
       variant="contained"
-      color="primary"
+      color={boatData?.settings?.controller?.type === 'holdline' ? "success" : "primary"}
       onClick={handleHoldLineUserChange}
     >
       Hold The Line
