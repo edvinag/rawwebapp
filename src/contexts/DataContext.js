@@ -191,6 +191,30 @@ export const DataProvider = ({ children }) => {
     }
   };
 
+  const pushDarkMode = async (darkMode) => {
+    if (!serviceUrl) {
+      console.error("Service URL is not set.");
+      return;
+    }
+
+    let url = `${serviceUrl}/rudder?darkMode=${darkMode}`;
+
+    try {
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' }
+      });
+
+      if (response.ok) {
+        console.log("Dark mode successfully pushed to server");
+      } else {
+        console.error("Failed to push dark mode to server:", response.status, response.statusText);
+      }
+    } catch (error) {
+      console.error("Error pushing dark mode to server:", error);
+    }
+  };
+
   return (
     <DataContext.Provider value={{
       boatData,
@@ -208,7 +232,8 @@ export const DataProvider = ({ children }) => {
       disableCompass,       // ✅ Exposed function to disable
       holdLineEnabled,
       setHoldLineEnabled,
-      enableRoute
+      enableRoute,
+      pushDarkMode
     }}>
       {children}
     </DataContext.Provider>

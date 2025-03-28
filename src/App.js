@@ -17,7 +17,7 @@ import DirectionsBoatIcon from '@mui/icons-material/DirectionsBoat';
 
 const AppContent = () => {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-  const { follow, setFollow, boatData, enableRoute, enableCompass, compassHeading} = useDataContext();
+  const { follow, setFollow, boatData, enableRoute, enableCompass, compassHeading, pushDarkMode } = useDataContext();
 
   const toggleDrawer = (open) => (event) => {
     if (event.type === 'keydown' && (event.key === 'Tab' || event.key === 'Shift')) return;
@@ -38,41 +38,49 @@ const AppContent = () => {
     <Router>
       <Box sx={{ display: 'flex', flexDirection: 'column', height: '100vh', overflow: 'hidden' }}>
         <AppBar position="sticky">
-        <Toolbar>
-  <IconButton edge="start" color="inherit" onClick={toggleDrawer(true)} sx={{ mr: 2 }}>
-    <MenuIcon />
-  </IconButton>
+          <Toolbar>
+            <IconButton edge="start" color="inherit" onClick={toggleDrawer(true)} sx={{ mr: 2 }}>
+              <MenuIcon />
+            </IconButton>
 
-  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexGrow: 1 }}>
-    {/* Left Side */}
-    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-      <Typography variant="h6">RawCat</Typography>
-      <Typography variant="subtitle1">
-        {boatData?.settings?.controller?.type === 'compass'
-          ? ' - follows the compass'
-          : boatData?.settings?.controller?.type === 'holdline'
-            ? ' - is holding the line'
-            : boatData?.settings?.controller?.type === 'route' 
-              ? ' - is following the route'
-              : ''}
-      </Typography>
-    </Box>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexGrow: 1 }}>
+              {/* Left Side */}
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                <Typography variant="h6">RawCat</Typography>
+                <Typography variant="subtitle1">
+                  {boatData?.settings?.controller?.type === 'compass'
+                    ? ' - follows the compass'
+                    : boatData?.settings?.controller?.type === 'holdline'
+                      ? ' - is holding the line'
+                      : boatData?.settings?.controller?.type === 'route'
+                        ? ' - is following the route'
+                        : ''}
+                </Typography>
+              </Box>
 
-    {/* Right Side */}
-    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-      <Button variant="contained" color="primary" onClick={enableCompass}>
-        Compass: {compassHeading !== null ? `${Math.round(compassHeading)}°` : 'N/A'}
-      </Button>
-      <HoldLineToggle />
-      <Button variant="contained" color="primary" onClick={enableRoute}>Follow route</Button>
-      <FormControlLabel
-        control={<Checkbox checked={follow} onChange={handleFollowChange} color="default" />}
-        label="Follow Boat"
-      />
-      
-    </Box>
-  </Box>
-</Toolbar>
+              {/* Right Side */}
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                <Button variant="contained" color="primary" onClick={enableCompass}>
+                  Compass: {compassHeading !== null ? `${Math.round(compassHeading)}°` : 'N/A'}
+                </Button>
+                <HoldLineToggle />
+                <Button variant="contained" color="primary" onClick={enableRoute}>Follow route</Button>
+                <FormControlLabel
+                  control={<Checkbox checked={follow} onChange={handleFollowChange} color="default" />}
+                  label="Follow Boat"
+                />
+
+                <Button
+                  variant="contained"
+                  color={boatData?.settings?.rudder?.darkMode ? "error" : "primary"}
+                  onClick={() => pushDarkMode(!boatData?.settings?.rudder?.darkMode)}
+                >
+                  DarkMode
+                </Button>
+
+              </Box>
+            </Box>
+          </Toolbar>
 
 
         </AppBar>
