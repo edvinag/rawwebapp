@@ -81,8 +81,19 @@ export const DataProvider = ({ children }) => {
 
   // ✅ Compass Handling
   const handleOrientation = (event) => {
-    const compass = event.alpha;
-    setCompassHeading(compass);
+    let heading = null;
+  
+    if (event.webkitCompassHeading !== undefined) {
+      // iOS-specific
+      heading = event.webkitCompassHeading;
+    } else if (event.alpha !== null) {
+      // Other devices
+      heading = (360 - event.alpha) % 360;
+    }
+  
+    if (heading !== null) {
+      setCompassHeading(heading);
+    }
   };
 
   const enableCompass = async () => {
