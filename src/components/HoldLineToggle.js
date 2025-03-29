@@ -1,10 +1,13 @@
-import { Button } from '@mui/material';
+import { IconButton, Tooltip } from '@mui/material';
 import { useDataContext } from '../contexts/DataContext';
 import { useApi } from '../contexts/SettingsContext';
+import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
+import { useTheme } from '@mui/material/styles';
 
 const HoldLineToggle = () => {
-  const { setHoldLineEnabled, disableCompass, boatData} = useDataContext();
+  const { setHoldLineEnabled, disableCompass, boatData } = useDataContext();
   const { serviceUrl } = useApi();
+  const theme = useTheme();  // Accessing the theme
 
   const handleHoldLineUserChange = async () => {
     setHoldLineEnabled(true); 
@@ -24,14 +27,26 @@ const HoldLineToggle = () => {
     }
   };
 
+  const isActive = boatData?.settings?.controller?.type === 'holdline';
+  const activeColor = theme.palette.success.main;
+  const inactiveColor = theme.palette.primary.main;
+
   return (
-    <Button
-      variant="contained"
-      color={boatData?.settings?.controller?.type === 'holdline' ? "success" : "primary"}
-      onClick={handleHoldLineUserChange}
-    >
-      Hold The Line
-    </Button>
+    <Tooltip title="Hold The Line" arrow>
+      <IconButton
+        onClick={handleHoldLineUserChange}
+        sx={{
+          backgroundColor: isActive ? activeColor : inactiveColor,
+          color: theme.palette.common.white,
+          '&:hover': {
+            backgroundColor: isActive ? theme.palette.success.dark : theme.palette.primary.dark,
+          },
+          transition: 'background-color 0.3s ease',
+        }}
+      >
+        <ArrowUpwardIcon />
+      </IconButton>
+    </Tooltip>
   );
 };
 

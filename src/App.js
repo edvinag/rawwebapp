@@ -13,6 +13,13 @@ import {
 } from '@mui/material';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import MenuIcon from '@mui/icons-material/Menu';
+import Tooltip from '@mui/material/Tooltip';
+import ExploreIcon from '@mui/icons-material/Explore';
+import RouteIcon from '@mui/icons-material/Route';
+import Brightness4Icon from '@mui/icons-material/Brightness4';
+import Brightness7Icon from '@mui/icons-material/Brightness7';
+
+
 import { HashRouter as Router, Routes, Route } from 'react-router-dom';
 
 import MapComponent from './components/MapComponent';
@@ -79,24 +86,54 @@ const AppContent = () => {
                   </Typography>
                 </Box>
 
-                {/* Right Side */}
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                  <Button variant="contained" color={boatData?.settings?.controller?.type === 'compass' ? "success" : "primary"} onClick={enableCompass}>
-                    Compass: {compassHeading !== null ? `${Math.round(compassHeading)}°` : 'N/A'}
-                  </Button>
+                  <Tooltip title={`Compass: ${compassHeading !== null ? `${Math.round(compassHeading)}°` : 'N/A'}`} arrow>
+                    <IconButton
+                      onClick={enableCompass}
+                      sx={{
+                        backgroundColor: boatData?.settings?.controller?.type === 'compass' ? theme.palette.success.main : theme.palette.primary.main,
+                        color: theme.palette.common.white,
+                        '&:hover': { backgroundColor: boatData?.settings?.controller?.type === 'compass' ? theme.palette.success.dark : theme.palette.primary.dark },
+                        transition: 'background-color 0.3s ease'
+                      }}
+                    >
+                      <ExploreIcon />
+                    </IconButton>
+                  </Tooltip>
+
                   <HoldLineToggle />
-                  <Button variant="contained" color={boatData?.settings?.controller?.type === 'route' ? "success" : "primary"} onClick={enableRoute}>Follow route</Button>
+
+                  <Tooltip title="Follow Route" arrow>
+                    <IconButton
+                      onClick={enableRoute}
+                      sx={{
+                        backgroundColor: boatData?.settings?.controller?.type === 'route' ? theme.palette.success.main : theme.palette.primary.main,
+                        color: theme.palette.common.white,
+                        '&:hover': { backgroundColor: boatData?.settings?.controller?.type === 'route' ? theme.palette.success.dark : theme.palette.primary.dark },
+                        transition: 'background-color 0.3s ease'
+                      }}
+                    >
+                      <RouteIcon />
+                    </IconButton>
+                  </Tooltip>
+                  
                   <FormControlLabel
                     control={<Checkbox checked={follow} onChange={handleFollowChange} color="default" />}
                     label="Follow Boat"
                   />
-                  <Button
-                    variant="contained"
-                    color={isDarkMode ? 'error' : 'primary'}
-                    onClick={() => pushDarkMode(!isDarkMode)}
-                  >
-                    DarkMode
-                  </Button>
+                  <Tooltip title="Toggle Dark Mode" arrow>
+                    <IconButton
+                      onClick={() => pushDarkMode(!isDarkMode)}
+                      sx={{
+                        backgroundColor: isDarkMode ? theme.palette.success.main : theme.palette.primary.main,
+                        color: theme.palette.common.white,
+                        '&:hover': { backgroundColor: isDarkMode ? theme.palette.success.dark : theme.palette.primary.dark },
+                        transition: 'background-color 0.3s ease'
+                      }}
+                    >
+                      {isDarkMode ? <Brightness7Icon /> : <Brightness4Icon />}
+                    </IconButton>
+                  </Tooltip>
                 </Box>
               </Box>
             </Toolbar>
