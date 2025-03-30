@@ -29,6 +29,7 @@ import { ApiProvider } from './contexts/SettingsContext';
 import BoatDataPage from './components/BoatDataPage';
 import SettingsJson from './components/SettingsJson';
 import HoldLineToggle from './components/HoldLineToggle';
+import ControllerTypeButtons from './components/ControllerTypeButtons';
 
 import MapIcon from '@mui/icons-material/Map';
 import DirectionsBoatIcon from '@mui/icons-material/DirectionsBoat';
@@ -87,42 +88,16 @@ const AppContent = () => {
                 </Box>
 
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, border: '1px solid', borderColor: 'grey.300', borderRadius: 2, p: 2 }}>
-  {/* Compass Button */}
-  <Tooltip title={`Compass: ${compassHeading !== null ? `${Math.round(compassHeading)}°` : 'N/A'}`} arrow>
-    <IconButton
-      onClick={enableCompass}
-      sx={{
-        backgroundColor: boatData?.settings?.controller?.type === 'compass' ? theme.palette.success.main : theme.palette.primary.main,
-        color: theme.palette.common.white,
-        '&:hover': { backgroundColor: boatData?.settings?.controller?.type === 'compass' ? theme.palette.success.dark : theme.palette.primary.dark },
-        transition: 'background-color 0.3s ease'
-      }}
-    >
-      <ExploreIcon />
-    </IconButton>
-  </Tooltip>
+                  <ControllerTypeButtons
+                    enableCompass={enableCompass}
+                    enableRoute={enableRoute}
+                    currentControllerType={boatData?.settings?.controller?.type}
+                    theme={theme}
+                    compassHeading={compassHeading}
+                  />
 
-  {/* Hold Line Button */}
-  <HoldLineToggle />
 
-  {/* Route Button */}
-  <Tooltip title="Follow Route" arrow>
-    <IconButton
-      onClick={enableRoute}
-      sx={{
-        backgroundColor: boatData?.settings?.controller?.type === 'route' ? theme.palette.success.main : theme.palette.primary.main,
-        color: theme.palette.common.white,
-        '&:hover': { backgroundColor: boatData?.settings?.controller?.type === 'route' ? theme.palette.success.dark : theme.palette.primary.dark },
-        transition: 'background-color 0.3s ease'
-      }}
-    >
-      <RouteIcon />
-    </IconButton>
-  </Tooltip>
-</Box>
 
-                  
                   <FormControlLabel
                     control={<Checkbox checked={follow} onChange={handleFollowChange} color="default" />}
                     label="Follow Boat"
