@@ -128,7 +128,7 @@ const SettingsDrawer = ({ isDrawerOpen, toggleDrawer, menuItems }) => {
             placeholder="Enter Service URL"
             sx={{ mt: 2, mb: 2 }}
           />
-          <Button variant="contained" color="secondary" onClick={saveServiceUrlToContext} fullWidth>
+          <Button variant="contained" color="primary" onClick={saveServiceUrlToContext} fullWidth>
             Save Service URL
           </Button>
         </Box>

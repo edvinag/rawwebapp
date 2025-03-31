@@ -5,7 +5,7 @@ const { BaseLayer } = LayersControl;
 
 const TileLayers = () => (
   <>
-    <BaseLayer checked name="Nautical Map">
+    <BaseLayer name="Nautical Map">
       <TileLayer
         url="https://{s}.eniro.no/geowebcache/service/tms1.0.0/nautical2x/{z}/{x}/{y}.png?c=crc&v=20200602"
         maxZoom={17}
@@ -17,7 +17,7 @@ const TileLayers = () => (
         zoomOffset={0}
       />
     </BaseLayer>
-    <BaseLayer name="Hydrographica Map">
+    <BaseLayer checked name="Hydrographica Map">
       <TileLayer
         url="https://{s}.eniro.no/geowebcache/service/tms1.0.0/hydrographica2x/{z}/{x}/{y}.png?c=crc&v=20240523"
         maxZoom={17}

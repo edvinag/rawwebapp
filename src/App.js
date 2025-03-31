@@ -6,9 +6,6 @@ import {
   AppBar,
   Toolbar,
   Typography,
-  Checkbox,
-  FormControlLabel,
-  Button,
   CssBaseline
 } from '@mui/material';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
@@ -76,18 +73,11 @@ const AppContent = () => {
                 {/* Left Side */}
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                   <Typography variant="h6">RawCat</Typography>
-                  <Typography variant="subtitle1">
-                    {boatData?.settings?.controller?.type === 'compass'
-                      ? ' - follows the compass'
-                      : boatData?.settings?.controller?.type === 'holdline'
-                        ? ' - is holding the line'
-                        : boatData?.settings?.controller?.type === 'route'
-                          ? ' - is following the route'
-                          : ''}
-                  </Typography>
+
                 </Box>
 
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                  
                   <ControllerTypeButtons
                     enableCompass={enableCompass}
                     enableRoute={enableRoute}
@@ -95,13 +85,20 @@ const AppContent = () => {
                     theme={theme}
                     compassHeading={compassHeading}
                   />
+                  
+                  <Tooltip title="Follow Boat" arrow>
+                    <IconButton
+                      onClick={() => setFollow(!follow)}
+                      sx={{
+                        color: theme.palette.common.white,
+                        backgroundColor: follow ? theme.palette.success.main : "primary",
+                        transition: 'color 0.3s ease'
+                      }}
+                    >
+                      <DirectionsBoatIcon />
+                    </IconButton>
+                  </Tooltip>
 
-
-
-                  <FormControlLabel
-                    control={<Checkbox checked={follow} onChange={handleFollowChange} color="default" />}
-                    label="Follow Boat"
-                  />
                   <Tooltip title="Toggle Dark Mode" arrow>
                     <IconButton
                       onClick={() => pushDarkMode(!isDarkMode)}
