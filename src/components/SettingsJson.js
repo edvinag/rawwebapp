@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from "react";
-import { Container, Typography, Button, Paper } from "@mui/material";
+import { Container, Typography, Button, Paper, useTheme } from "@mui/material";
 import JsonView from "@microlink/react-json-view";
 import { useApi } from "../contexts/SettingsContext"; // Import service URL context
 
 const SettingsJson = () => {
-    const { serviceUrl } = useApi(); // Get the service URL from context
+    const theme = useTheme();
+    const { serviceUrl } = useApi();
     const [data, setData] = useState(null);
     const [settings, setSettings] = useState(null);
 
-    // Fetch data and settings
     useEffect(() => {
         if (!serviceUrl) return;
 
@@ -29,7 +29,6 @@ const SettingsJson = () => {
         fetchData();
     }, [serviceUrl]);
 
-    // Read from clipboard
     const readClipboard = async () => {
         try {
             const text = await navigator.clipboard.readText();
@@ -39,7 +38,6 @@ const SettingsJson = () => {
         }
     };
 
-    // Upload settings
     const postSettings = async () => {
         try {
             await fetch(`${serviceUrl}/settings`, {
@@ -53,7 +51,6 @@ const SettingsJson = () => {
         }
     };
 
-    // Copy JSON to clipboard
     const copyToClipboard = async (jsonData) => {
         try {
             await navigator.clipboard.writeText(JSON.stringify(jsonData, null, 2));
@@ -66,45 +63,54 @@ const SettingsJson = () => {
     return (
         <Container
             maxWidth="md"
-            style={{
-                padding: "20px",
-                borderRadius: "8px",
-                maxHeight: "90vh", // Ensure it doesn't take full height
-                overflowY: "auto", // Enable scrolling
+            sx={{
+                padding: 2,
+                borderRadius: 2,
+                maxHeight: "90vh",
+                overflowY: "auto",
+                backgroundColor: theme.palette.background.default,
+                color: theme.palette.text.primary,
             }}
         >
-            <Typography variant="h5" style={{ marginTop: "20px" }}>
+            <Typography variant="h5" sx={{ marginTop: 2 }}>
                 Settings
             </Typography>
-            <Paper elevation={3} style={{ padding: "10px" }}>
+            <Paper 
+                elevation={3} 
+                sx={{ padding: 2, backgroundColor: theme.palette.background.paper }}
+            >
                 {settings ? (
                     <JsonView
                         src={settings}
                         collapsed={2}
                         onEdit={(e) => setSettings(e.updated_src)}
+                        theme={theme.palette.mode === 'dark' ? 'monokai' : 'rjv-default'}
                     />
                 ) : (
                     <Typography>Loading settings...</Typography>
                 )}
             </Paper>
 
-            <Button variant="contained" color="primary" style={{ marginTop: "20px", marginRight: "10px" }} onClick={readClipboard}>
+            <Button variant="contained" color="primary" sx={{ marginTop: 2, marginRight: 1 }} onClick={readClipboard}>
                 From Clipboard
             </Button>
-            <Button variant="contained" color="secondary" style={{ marginTop: "20px", marginRight: "10px" }} onClick={postSettings}>
+            <Button variant="contained" color="secondary" sx={{ marginTop: 2, marginRight: 1 }} onClick={postSettings}>
                 Upload Settings
             </Button>
-            <Button variant="contained" color="default" style={{ marginTop: "20px" }} onClick={() => copyToClipboard(settings)}>
+            <Button variant="contained" color="inherit" sx={{ marginTop: 2 }} onClick={() => copyToClipboard(settings)}>
                 Copy Settings JSON
             </Button>
-            
-            <Typography variant="h5" style={{ marginTop: "40px" }}>Data</Typography>
 
-            <Paper elevation={3} style={{ padding: "10px" }}>
-                {data ? <JsonView src={data} collapsed={2} /> : <Typography>Loading data...</Typography>}
+            <Typography variant="h5" sx={{ marginTop: 4 }}>Data</Typography>
+
+            <Paper 
+                elevation={3} 
+                sx={{ padding: 2, backgroundColor: theme.palette.background.paper }}
+            >
+                {data ? <JsonView src={data} collapsed={2} theme={theme.palette.mode === 'dark' ? 'monokai' : 'rjv-default'} /> : <Typography>Loading data...</Typography>}
             </Paper>
 
-            <Button variant="contained" color="default" style={{ marginTop: "20px" }} onClick={() => copyToClipboard(data)}>
+            <Button variant="contained" color="inherit" sx={{ marginTop: 2 }} onClick={() => copyToClipboard(data)}>
                 Copy Data JSON
             </Button>
         </Container>

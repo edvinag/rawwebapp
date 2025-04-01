@@ -6,6 +6,7 @@ import MyBoatMarker from './MyBoatMarker';
 import TargetMarker from './TargetMarker';
 import RoutePolyline from './RoutePolyline';
 import TargetLine from './TargetLine';
+import CompassLine from './CompassLine';
 import BoatPath from './BoatPath';
 import 'leaflet/dist/leaflet.css';
 import { useDataContext } from '../contexts/DataContext';
@@ -74,6 +75,7 @@ const MapComponent = () => {
           <TargetLine />
           <RoutePolyline />
           <BoatPath />
+          <CompassLine />
         </LayersControl>
         <MyBoatMarker />
         <MapEventsHandler />

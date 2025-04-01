@@ -1,29 +1,19 @@
-// components/HoldLineToggle.js
-import React, { useState, useEffect } from 'react';
-import { Checkbox, FormControlLabel } from '@mui/material';
+import { IconButton, Tooltip } from '@mui/material';
 import { useDataContext } from '../contexts/DataContext';
 import { useApi } from '../contexts/SettingsContext';
+import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
+import { useTheme } from '@mui/material/styles';
 
 const HoldLineToggle = () => {
-  const [holdLineEnabled, setHoldLineEnabled] = useState(false);
-  const { boatData } = useDataContext();
+  const { setHoldLineEnabled, disableCompass, boatData } = useDataContext();
   const { serviceUrl } = useApi();
+  const theme = useTheme();  // Accessing the theme
 
-  // Sync checkbox display state when boatData changes (without triggering fetch)
-  useEffect(() => {
-    if (boatData?.settings?.controller?.type) {
-      setHoldLineEnabled(boatData.settings.controller.type === 'holdline');
-    }
-  }, [boatData]);
-
-  // Handle user interaction
-  const handleHoldLineUserChange = async (event) => {
-    const isChecked = event.target.checked;
-    setHoldLineEnabled(isChecked); // Optimistically update UI
-
-    const url = isChecked
-      ? `${serviceUrl}/setHoldLine` // Enable hold line
-      : `${serviceUrl}/controller?type=route`; // Disable hold line
+  const handleHoldLineUserChange = async () => {
+    setHoldLineEnabled(true); 
+    disableCompass();
+    
+    const url = `${serviceUrl}/setHoldLine`;
 
     try {
       const response = await fetch(url, { method: 'GET' });
@@ -37,17 +27,26 @@ const HoldLineToggle = () => {
     }
   };
 
+  const isActive = boatData?.settings?.controller?.type === 'holdline';
+  const activeColor = theme.palette.success.main;
+  const inactiveColor = theme.palette.primary.main;
+
   return (
-    <FormControlLabel
-      control={
-        <Checkbox
-          checked={holdLineEnabled}
-          onChange={handleHoldLineUserChange}
-          color="default"
-        />
-      }
-      label="Hold Line"
-    />
+    <Tooltip title="Hold The Line" arrow>
+      <IconButton
+        onClick={handleHoldLineUserChange}
+        sx={{
+          backgroundColor: isActive ? activeColor : inactiveColor,
+          color: theme.palette.common.white,
+          '&:hover': {
+            backgroundColor: isActive ? theme.palette.success.dark : theme.palette.primary.dark,
+          },
+          transition: 'background-color 0.3s ease',
+        }}
+      >
+        <ArrowUpwardIcon />
+      </IconButton>
+    </Tooltip>
   );
 };
 
