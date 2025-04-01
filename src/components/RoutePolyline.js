@@ -44,7 +44,7 @@ const RoutePolyline = () => {
   };
 
   const handleMarkerDblClick = async (index) => {
-    console.error("handleMarkerDblClick called with index:", index);
+    console.log("handleMarkerDblClick called with index:", index);
     if (!serviceUrl) {
       console.error("Service URL is not set.");
       return;
