@@ -114,14 +114,35 @@ const RoutePolyline = () => {
             key={index}
             icon={createCircleIcon()}
             position={coord}
-            draggable={false}
+            draggable={true} // Allow Leaflet to handle the dragging
             ref={(el) => (markerRefs.current[index] = el)}
             eventHandlers={{
-              mousedown: (event) => handleMarkerMouseDown(event, index),
-              dblclick: () => handleMarkerDblClick(index), // Restore double-click functionality
+              dragstart: () => {
+                draggingMarkerIndex.current = index;
+                setRouteFetchPaused(true);
+              },
+              drag: (event) => {
+                const { lat, lng } = event.target.getLatLng();
+                coordinates[index] = [lat, lng];
+
+                if (polylineRef.current) {
+                  polylineRef.current.setLatLngs(coordinates); // Update Polyline in real-time
+                }
+              },
+              dragend: async () => {
+                if (polylineRef.current) {
+                  const geoJson = polylineRef.current.toGeoJSON();
+                  await pushRouteData(geoJson, true);
+                }
+
+                draggingMarkerIndex.current = null;
+                setRouteFetchPaused(false);
+              },
+              dblclick: () => handleMarkerDblClick(index),
             }}
           />
         ))}
+
       </FeatureGroup>
     </Overlay>
   );
