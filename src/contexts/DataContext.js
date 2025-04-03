@@ -87,7 +87,7 @@ export const DataProvider = ({ children }) => {
         setIsFetchingRouteData(false);
       }
     };
-
+    fetchRouteData();
     const routeDataInterval = setInterval(fetchRouteData, 5000);
     return () => clearInterval(routeDataInterval);
   }, [fetchPaused, serviceUrl, isFetchingRouteData]);
