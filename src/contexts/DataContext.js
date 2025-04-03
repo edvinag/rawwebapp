@@ -13,7 +13,6 @@ export const DataProvider = ({ children }) => {
   // State Flags
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [fetchPaused, setFetchPaused] = useState(false);
   const [follow, setFollow] = useState(true); // Follow boat checkbox
 
   // Fetching status flags
@@ -28,24 +27,31 @@ export const DataProvider = ({ children }) => {
   // Hold the line
   const [holdLineEnabled, setHoldLineEnabled] = useState(false);
 
+  // Fetch Pause Handling (Replaced useState with useRef)
+  const fetchPausedRef = useRef(false);
+
+  const setRouteFetchPaused = (paused) => {
+    fetchPausedRef.current = paused; // Toggle fetching without causing re-renders
+  };
+
   // ✅ Boat Data Fetch
   useEffect(() => {
     const fetchBoatData = async () => {
-      if (fetchPaused || !serviceUrl || isFetchingBoatData) return;
+      if (fetchPausedRef.current || !serviceUrl || isFetchingBoatData) return;
+
       setIsFetchingBoatData(true);
       try {
-        let response = null
+        let response = null;
         if (compassEnabled) {
           response = await fetch(`${serviceUrl}/all?controllerType=compass&refCourse=` + compassHeading);
-        }
-        else if(holdLineEnabled)
-        {
+        } else if (holdLineEnabled) {
           response = await fetch(`${serviceUrl}/all?controllerType=holdline`);
-        }
-        else {
+        } else {
           response = await fetch(`${serviceUrl}/all?controllerType=route`);
         }
+
         if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+        
         const result = await response.json();
 
         setBoatData((prevBoatData) => {
@@ -62,23 +68,25 @@ export const DataProvider = ({ children }) => {
       } catch (err) {
         setError(err.message);
       } finally {
-        setLoading(false);
         setIsFetchingBoatData(false);
+        setLoading(false);
       }
     };
 
-    const boatDataInterval = setInterval(fetchBoatData, 500);
+    const boatDataInterval = setInterval(fetchBoatData, 1000);
     return () => clearInterval(boatDataInterval);
-  }, [fetchPaused, serviceUrl, isFetchingBoatData]);
+  }, [serviceUrl, compassEnabled, holdLineEnabled, compassHeading]);
 
   // ✅ Route Data Fetch
   useEffect(() => {
     const fetchRouteData = async () => {
-      if (fetchPaused || !serviceUrl || isFetchingRouteData) return;
+      if (fetchPausedRef.current || !serviceUrl || isFetchingRouteData) return;
+
       setIsFetchingRouteData(true);
       try {
         const response = await fetch(`${serviceUrl}/route`);
         if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+        
         const routeResult = await response.json();
         setRouteData(routeResult);
       } catch (error) {
@@ -87,88 +95,14 @@ export const DataProvider = ({ children }) => {
         setIsFetchingRouteData(false);
       }
     };
-    fetchRouteData();
+
     const routeDataInterval = setInterval(fetchRouteData, 5000);
     return () => clearInterval(routeDataInterval);
-  }, [fetchPaused, serviceUrl, isFetchingRouteData]);
-
-  // ✅ Compass Handling
-  const handleOrientation = (event) => {
-    let heading = null;
-  
-    if (event.webkitCompassHeading !== undefined) {
-      // iOS-specific
-      heading = event.webkitCompassHeading;
-    } else if (event.alpha !== null) {
-      // Other devices
-      heading = (360 - event.alpha) % 360;
-    }
-  
-    if (heading !== null) {
-      setCompassHeading(heading);
-    }
-  };
-
-  const enableRoute = () => {
-    setHoldLineEnabled(false);
-    disableCompass();
-  };
-
-  const enableCompass = async () => {
-    if (compassListenerActive.current) return; // Already active
-
-    if (
-      typeof DeviceOrientationEvent !== 'undefined' &&
-      typeof DeviceOrientationEvent.requestPermission === 'function'
-    ) {
-      try {
-        const response = await DeviceOrientationEvent.requestPermission();
-        if (response === 'granted') {
-          window.addEventListener('deviceorientation', handleOrientation, true);
-          compassListenerActive.current = true;
-          setCompassEnabled(true);
-        } else {
-          console.error('Permission denied for compass access.');
-          setCompassEnabled(false);
-        }
-      } catch (err) {
-        console.error('Compass permission error:', err);
-        setCompassEnabled(false);
-      }
-    } else if (typeof DeviceOrientationEvent !== 'undefined') {
-      // Android / desktop if supported
-      window.addEventListener('deviceorientation', handleOrientation, true);
-      compassListenerActive.current = true;
-      setCompassEnabled(true);
-    } else {
-      console.error('Compass not supported on this device.');
-      setCompassEnabled(false);
-    }
-  };
-
-  const disableCompass = () => {
-    if (compassListenerActive.current) {
-      window.removeEventListener('deviceorientation', handleOrientation);
-      compassListenerActive.current = false;
-    }
-    setCompassHeading(null);
-    setCompassEnabled(false);
-  };
-
-  // Cleanup on unmount
-  useEffect(() => {
-    return () => disableCompass(); // Stop compass when component unmounts
-  }, []);
+  }, [serviceUrl]);
 
   // ✅ Route Push
-  const updateRouteData = (newRouteData) => setRouteData(newRouteData);
-  const setRouteFetchPaused = (paused) => setFetchPaused(paused);
-
   const pushRouteData = async (data, keepIndex, goalIndex = null) => {
-    if (!serviceUrl) {
-      console.error("Service URL is not set.");
-      return;
-    }
+    if (!serviceUrl) return;
 
     let url = `${serviceUrl}/route?keepIndex=${keepIndex}`;
     if (goalIndex !== null) url += `&goalIndex=${goalIndex}`;
@@ -182,7 +116,7 @@ export const DataProvider = ({ children }) => {
 
       if (response.ok) {
         console.log("Route data successfully pushed to server");
-        updateRouteData(data);
+        setRouteData(data);
       } else {
         console.error("Failed to push data to server:", response.status, response.statusText);
       }
@@ -192,24 +126,10 @@ export const DataProvider = ({ children }) => {
   };
 
   const pushDarkMode = async (darkMode) => {
-    if (!serviceUrl) {
-      console.error("Service URL is not set.");
-      return;
-    }
-
-    let url = `${serviceUrl}/rudder?darkMode=${darkMode}`;
+    if (!serviceUrl) return;
 
     try {
-      const response = await fetch(url, {
-        method: 'GET',
-        headers: { 'Content-Type': 'application/json' }
-      });
-
-      if (response.ok) {
-        console.log("Dark mode successfully pushed to server");
-      } else {
-        console.error("Failed to push dark mode to server:", response.status, response.statusText);
-      }
+      await fetch(`${serviceUrl}/rudder?darkMode=${darkMode}`, { method: 'GET' });
     } catch (error) {
       console.error("Error pushing dark mode to server:", error);
     }
@@ -223,17 +143,13 @@ export const DataProvider = ({ children }) => {
       error,
       follow,
       setFollow,
-      updateRouteData,
       setRouteFetchPaused,
       pushRouteData,
-      compassHeading,        // ✅ Exposed heading
-      compassEnabled,       // ✅ Exposed enabled state
-      enableCompass,        // ✅ Exposed function to enable
-      disableCompass,       // ✅ Exposed function to disable
+      pushDarkMode,
+      compassHeading,
+      compassEnabled,
       holdLineEnabled,
-      setHoldLineEnabled,
-      enableRoute,
-      pushDarkMode
+      setHoldLineEnabled
     }}>
       {children}
     </DataContext.Provider>
